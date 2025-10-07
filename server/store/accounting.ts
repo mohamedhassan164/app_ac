@@ -16,6 +16,7 @@ import {
   type ProjectSale,
   type ProjectSaleCreateInput,
   type ProjectSaleCreateResult,
+  type ProjectSnapshot,
   type Transaction,
   type TransactionCreateInput,
 } from "@shared/accounting";
