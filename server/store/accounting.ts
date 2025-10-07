@@ -300,6 +300,51 @@ function sortTransactionsFallbackMovements(items: Movement[]): Movement[] {
   );
 }
 
+function addMonthsISO(start: string, months: number): string {
+  const [y, m, d] = start.split("-").map(Number);
+  const date = new Date(y, (m - 1) + months, d || 1);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(Math.min(d || 1, new Date(yyyy, date.getMonth() + 1, 0).getDate())).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function createInstallmentsForSale(params: {
+  projectId: string;
+  saleId: string;
+  unitNo: string;
+  buyer: string;
+  monthlyAmount: number;
+  months: number;
+  firstDueDate: string;
+}): Installment[] {
+  const list: Installment[] = [];
+  for (let i = 0; i < params.months; i++) {
+    const id = crypto.randomUUID();
+    const dueDate = addMonthsISO(params.firstDueDate, i);
+    const inst: Installment = {
+      id,
+      projectId: params.projectId,
+      saleId: params.saleId,
+      unitNo: params.unitNo,
+      buyer: params.buyer,
+      amount: params.monthlyAmount,
+      dueDate,
+      paid: false,
+      paidAt: null,
+    };
+    fallbackStore.installments.set(id, inst);
+    list.push(inst);
+  }
+  return list.sort((a, b) => (a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1));
+}
+
+function getProjectInstallments(projectId: string): Installment[] {
+  return [...fallbackStore.installments.values()]
+    .filter((i) => i.projectId === projectId)
+    .sort((a, b) => (a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1));
+}
+
 async function insertTransactionDb(
   input: TransactionCreateInput,
   conn?: PoolConnection,
