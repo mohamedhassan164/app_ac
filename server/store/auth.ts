@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
+import crypto from "node:crypto";
 import type { Role, User, UserWithPassword } from "@shared/api";
-import { compare, hash } from "bcryptjs";
+import bcrypt from "bcryptjs";
 import type { RowDataPacket } from "mysql2/promise";
 import {
   getInitializedMysqlPool,
@@ -71,7 +72,7 @@ export async function authenticate(username: string, password: string) {
       if (Array.isArray(rows) && rows.length > 0) {
         const row = rows[0] as UserWithPasswordRow;
         if (!asBoolean(row.active)) return null;
-        const valid = await compare(password, row.password_hash);
+        const valid = await bcrypt.compare(password, row.password_hash);
         if (!valid) return null;
         const token = crypto.randomUUID();
         await pool.query(
@@ -228,7 +229,7 @@ export async function createUser(input: {
   const pool = await getInitializedMysqlPool();
   if (pool) {
     const id = crypto.randomUUID();
-    const passwordHash = await hash(input.password, 10);
+    const passwordHash = await bcrypt.hash(input.password, 10);
     const active = input.active ?? true;
     try {
       await pool.query(
@@ -302,7 +303,7 @@ export async function updateUser(
       params.push(patch.active ? 1 : 0);
     }
     if (patch.password) {
-      const passwordHash = await hash(patch.password, 10);
+      const passwordHash = await bcrypt.hash(patch.password, 10);
       updates.push("password_hash = ?");
       params.push(passwordHash);
     }
