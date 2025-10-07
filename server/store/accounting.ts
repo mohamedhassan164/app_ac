@@ -95,6 +95,51 @@ const fallbackStore = {
   sales: new Map<string, ProjectSale>(),
 };
 
+type ProjectCostNoteData = {
+  note: string;
+  customTypeLabel: string | null;
+};
+
+function normalizeCustomTypeLabel(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function parseProjectCostNote(raw: string | null): ProjectCostNoteData {
+  if (!raw) {
+    return { note: "", customTypeLabel: null };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      const data = parsed as Record<string, unknown>;
+      return {
+        note: typeof data.note === "string" ? data.note : "",
+        customTypeLabel: normalizeCustomTypeLabel(data.customTypeLabel),
+      };
+    }
+  } catch {
+    // not JSON, treat as plain note
+  }
+  return { note: raw, customTypeLabel: null };
+}
+
+function serializeProjectCostNote(
+  note: string,
+  customTypeLabel: string | null,
+): string | null {
+  const normalizedLabel = normalizeCustomTypeLabel(customTypeLabel);
+  const noteValue = typeof note === "string" ? note : "";
+  if (!normalizedLabel) {
+    return noteValue ? noteValue : null;
+  }
+  return JSON.stringify({
+    note: noteValue,
+    customTypeLabel: normalizedLabel,
+  });
+}
+
 function asNumber(value: unknown): number {
   if (value === null || value === undefined) return 0;
   if (typeof value === "number") return value;
