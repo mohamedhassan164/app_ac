@@ -84,12 +84,18 @@ export default function ProjectPage() {
     const amount = Number(newCost.amount);
     if (!Number.isFinite(amount) || amount <= 0)
       return toast.error("قيمة غير صحيحة");
+    const customTypeLabel =
+      newCost.type === "other" ? newCost.customTypeLabel.trim() : undefined;
+    if (newCost.type === "other" && !customTypeLabel) {
+      return toast.error("يرجى إدخال نوع التكلفة");
+    }
     try {
       setSavingCost(true);
       const res = await createProjectCost({
         projectId: id,
         projectName: snapshot.project.name,
         type: newCost.type,
+        customTypeLabel,
         amount,
         date: newCost.date,
         note: newCost.note,
@@ -99,7 +105,7 @@ export default function ProjectPage() {
       setSnapshot((prev) =>
         prev ? { ...prev, costs: [res.cost, ...prev.costs] } : prev,
       );
-      setNewCost({ type: "construction", amount: "", date: today(), note: "" });
+      setNewCost(makeNewCostState());
       toast.success("تم تسجيل التكلفة");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "تعذر التسجيل";
