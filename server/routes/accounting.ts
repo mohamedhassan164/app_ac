@@ -32,6 +32,7 @@ import {
   getProjectSnapshot as getProjectSnapshotStore,
   recordInventoryIssue as recordInventoryIssueStore,
   recordInventoryReceipt as recordInventoryReceiptStore,
+  payInstallment as payInstallmentStore,
 } from "../store/accounting";
 import { getUserByTokenAsync } from "../store/auth";
 import { parseBody } from "../utils/parse-body";
