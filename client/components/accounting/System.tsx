@@ -990,7 +990,6 @@ export default function AccountingSystem() {
             </div>
           </div>
 
-
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">المشروعات</h3>
@@ -1078,8 +1077,6 @@ export default function AccountingSystem() {
               </div>
             )}
           </div>
-
-
         </section>
       )}
 

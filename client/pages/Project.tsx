@@ -93,9 +93,7 @@ export default function ProjectPage() {
         createdBy: user?.id ?? null,
       });
       setSnapshot((prev) =>
-        prev
-          ? { ...prev, costs: [res.cost, ...prev.costs] }
-          : prev,
+        prev ? { ...prev, costs: [res.cost, ...prev.costs] } : prev,
       );
       setNewCost({ type: "construction", amount: "", date: today(), note: "" });
       toast.success("تم تسجيل التكلفة");
@@ -128,11 +126,15 @@ export default function ProjectPage() {
         createdBy: user?.id ?? null,
       });
       setSnapshot((prev) =>
-        prev
-          ? { ...prev, sales: [res.sale, ...prev.sales] }
-          : prev,
+        prev ? { ...prev, sales: [res.sale, ...prev.sales] } : prev,
       );
-      setNewSale({ unitNo: "", buyer: "", price: "", date: today(), terms: "" });
+      setNewSale({
+        unitNo: "",
+        buyer: "",
+        price: "",
+        date: today(),
+        terms: "",
+      });
       toast.success("تم تسجيل البيع وإصدار الفاتورة");
       printInvoice(res.sale.id);
     } catch (e) {
@@ -233,7 +235,10 @@ export default function ProjectPage() {
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   value={newCost.type}
                   onChange={(e) =>
-                    setNewCost({ ...newCost, type: e.target.value as ProjectCost["type"] })
+                    setNewCost({
+                      ...newCost,
+                      type: e.target.value as ProjectCost["type"],
+                    })
                   }
                 >
                   <option value="construction">إنشاء</option>
@@ -244,20 +249,26 @@ export default function ProjectPage() {
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   placeholder="المبلغ"
                   value={newCost.amount}
-                  onChange={(e) => setNewCost({ ...newCost, amount: e.target.value })}
+                  onChange={(e) =>
+                    setNewCost({ ...newCost, amount: e.target.value })
+                  }
                 />
               </div>
               <input
                 type="date"
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 value={newCost.date}
-                onChange={(e) => setNewCost({ ...newCost, date: e.target.value })}
+                onChange={(e) =>
+                  setNewCost({ ...newCost, date: e.target.value })
+                }
               />
               <input
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 placeholder="ملاحظة"
                 value={newCost.note}
-                onChange={(e) => setNewCost({ ...newCost, note: e.target.value })}
+                onChange={(e) =>
+                  setNewCost({ ...newCost, note: e.target.value })
+                }
               />
               <div className="flex gap-2">
                 <button
@@ -268,7 +279,14 @@ export default function ProjectPage() {
                   {savingCost ? "جاري التسجيل..." : "تسجيل التكلفة"}
                 </button>
                 <button
-                  onClick={() => setNewCost({ type: "construction", amount: "", date: today(), note: "" })}
+                  onClick={() =>
+                    setNewCost({
+                      type: "construction",
+                      amount: "",
+                      date: today(),
+                      note: "",
+                    })
+                  }
                   className="rounded-md border px-3 py-2 bg-white"
                 >
                   إعادة تعيين
@@ -285,13 +303,17 @@ export default function ProjectPage() {
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   placeholder="رقم الوحدة"
                   value={newSale.unitNo}
-                  onChange={(e) => setNewSale({ ...newSale, unitNo: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, unitNo: e.target.value })
+                  }
                 />
                 <input
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   placeholder="السعر"
                   value={newSale.price}
-                  onChange={(e) => setNewSale({ ...newSale, price: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, price: e.target.value })
+                  }
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -299,20 +321,26 @@ export default function ProjectPage() {
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   placeholder="اسم المشتري"
                   value={newSale.buyer}
-                  onChange={(e) => setNewSale({ ...newSale, buyer: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, buyer: e.target.value })
+                  }
                 />
                 <input
                   type="date"
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   value={newSale.date}
-                  onChange={(e) => setNewSale({ ...newSale, date: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, date: e.target.value })
+                  }
                 />
               </div>
               <input
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 placeholder="شروط التعاقد (اختياري)"
                 value={newSale.terms}
-                onChange={(e) => setNewSale({ ...newSale, terms: e.target.value })}
+                onChange={(e) =>
+                  setNewSale({ ...newSale, terms: e.target.value })
+                }
               />
               <div className="flex gap-2">
                 <button
@@ -323,7 +351,15 @@ export default function ProjectPage() {
                   {savingSale ? "جاري التسجيل..." : "تسجيل البيع + فاتورة"}
                 </button>
                 <button
-                  onClick={() => setNewSale({ unitNo: "", buyer: "", price: "", date: today(), terms: "" })}
+                  onClick={() =>
+                    setNewSale({
+                      unitNo: "",
+                      buyer: "",
+                      price: "",
+                      date: today(),
+                      terms: "",
+                    })
+                  }
                   className="rounded-md border px-3 py-2 bg-white"
                 >
                   إعادة تعيين
@@ -351,7 +387,11 @@ export default function ProjectPage() {
                     <tr key={c.id} className="border-t">
                       <td className="px-3 py-2">{c.date}</td>
                       <td className="px-3 py-2">
-                        {c.type === "construction" ? "إنشاء" : c.type === "operation" ? "تشغيل" : "مصروفات"}
+                        {c.type === "construction"
+                          ? "إنشاء"
+                          : c.type === "operation"
+                            ? "تشغيل"
+                            : "مصروفات"}
                       </td>
                       <td className="px-3 py-2">{c.amount.toLocaleString()}</td>
                       <td className="px-3 py-2">{c.note}</td>
@@ -403,15 +443,21 @@ export default function ProjectPage() {
           <div className="grid grid-cols-3 gap-4 mt-2 text-sm">
             <div>
               <div className="text-slate-500">التكاليف</div>
-              <div className="font-bold">{totals.costs.toLocaleString()} ج.م</div>
+              <div className="font-bold">
+                {totals.costs.toLocaleString()} ج.م
+              </div>
             </div>
             <div>
               <div className="text-slate-500">المبيعات</div>
-              <div className="font-bold">{totals.sales.toLocaleString()} ج.م</div>
+              <div className="font-bold">
+                {totals.sales.toLocaleString()} ج.م
+              </div>
             </div>
             <div>
               <div className="text-slate-500">الربح</div>
-              <div className="font-bold">{totals.profit.toLocaleString()} ج.م</div>
+              <div className="font-bold">
+                {totals.profit.toLocaleString()} ج.م
+              </div>
             </div>
           </div>
         </div>
