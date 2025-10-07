@@ -389,6 +389,7 @@ export const createProjectCostHandler: RequestHandler = async (req, res) => {
       projectId: String(projectId),
       projectName: String(body.projectName),
       type: body.type,
+      customTypeLabel,
       amount,
       date: String(body.date),
       note: body.note ?? "",
