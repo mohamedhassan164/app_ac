@@ -823,6 +823,7 @@ export async function getProjectSnapshot(
     project,
     costs: costRows.map(mapProjectCostRow),
     sales: saleRows.map(mapProjectSaleRow),
+    installments: getProjectInstallments(id),
   };
 }
 
