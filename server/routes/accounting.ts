@@ -25,9 +25,11 @@ import {
   createProjectSale as createProjectSaleStore,
   createTransaction as createTransactionStore,
   deleteInventoryItem as deleteInventoryItemStore,
+  deleteProject as deleteProjectStore,
   deleteTransaction as deleteTransactionStore,
   getAccountingSnapshot as getAccountingSnapshotStore,
   getProjectById as getProjectByIdStore,
+  getProjectSnapshot as getProjectSnapshotStore,
   recordInventoryIssue as recordInventoryIssueStore,
   recordInventoryReceipt as recordInventoryReceiptStore,
 } from "../store/accounting";
