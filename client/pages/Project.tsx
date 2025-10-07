@@ -45,6 +45,10 @@ export default function ProjectPage() {
     terms: "",
     area: "",
     paymentMethod: "كاش",
+    downPayment: "",
+    monthlyAmount: "",
+    months: "",
+    firstDueDate: today(),
   });
   const [savingSale, setSavingSale] = useState(false);
   const [deleting, setDeleting] = useState(false);
