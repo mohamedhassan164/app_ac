@@ -1,4 +1,3 @@
-import { RequestHandler } from "express";
 import type { RequestHandler } from "express";
 import { authenticate, invalidateToken } from "../store/auth";
 import type {
