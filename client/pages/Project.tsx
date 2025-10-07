@@ -208,7 +208,7 @@ export default function ProjectPage() {
   if (error || !snapshot) {
     return (
       <Layout>
-        <div className="p-6">تعذر العثو�� على المشروع</div>
+        <div className="p-6">تعذر العثور على المشروع</div>
       </Layout>
     );
   }
@@ -441,13 +441,7 @@ export default function ProjectPage() {
                   {snapshot.costs.map((c) => (
                     <tr key={c.id} className="border-t">
                       <td className="px-3 py-2">{c.date}</td>
-                      <td className="px-3 py-2">
-                        {c.type === "construction"
-                          ? "إنشاء"
-                          : c.type === "operation"
-                            ? "تشغيل"
-                            : "مصروفات"}
-                      </td>
+                      <td className="px-3 py-2">{getCostTypeLabel(c)}</td>
                       <td className="px-3 py-2">{c.amount.toLocaleString()}</td>
                       <td className="px-3 py-2">{c.note}</td>
                     </tr>
