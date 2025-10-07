@@ -1050,3 +1050,32 @@ function projectCostTypeLabel(
   const normalized = normalizeCustomTypeLabel(customTypeLabel);
   return normalized ?? "أخرى";
 }
+
+export async function payInstallment(params: {
+  id: string;
+  date: string;
+  approved: boolean;
+  createdBy?: string | null;
+}): Promise<{ installment: Installment; transaction: Transaction }> {
+  const inst = fallbackStore.installments.get(params.id);
+  if (!inst) throw new Error("Installment not found");
+  if (inst.paid) return { installment: inst, transaction: await createTransaction({
+    date: params.date,
+    type: "revenue",
+    description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
+    amount: inst.amount,
+    approved: params.approved,
+    createdBy: params.createdBy ?? null,
+  }) };
+  const updated: Installment = { ...inst, paid: true, paidAt: params.date };
+  fallbackStore.installments.set(updated.id, updated);
+  const transaction = await createTransaction({
+    date: params.date,
+    type: "revenue",
+    description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
+    amount: inst.amount,
+    approved: params.approved,
+    createdBy: params.createdBy ?? null,
+  });
+  return { installment: updated, transaction };
+}
