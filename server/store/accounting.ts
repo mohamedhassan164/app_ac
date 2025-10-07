@@ -949,15 +949,33 @@ export async function createProjectSale(
       paymentMethod: input.paymentMethod ?? null,
     };
     fallbackStore.sales.set(sale.id, sale);
+    const hasPlan = Boolean(
+      input && input.monthlyAmount && input.months && input.firstDueDate,
+    );
+    const immediateAmount = hasPlan ? Math.max(0, Number(input.downPayment ?? 0)) : input.price;
     const transaction = createTransactionFallback({
       date: input.date,
       type: "revenue",
-      description: `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
-      amount: input.price,
+      description: hasPlan
+        ? `بيع بالتقسيط لوحدة ${input.unitNo} من مشروع ${input.projectName} (مقدم)`
+        : `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
+      amount: immediateAmount,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
     });
-    return { sale, transaction };
+    let installments: Installment[] | undefined;
+    if (hasPlan) {
+      installments = createInstallmentsForSale({
+        projectId: input.projectId,
+        saleId: sale.id,
+        unitNo: input.unitNo,
+        buyer: input.buyer,
+        monthlyAmount: Number(input.monthlyAmount),
+        months: Number(input.months),
+        firstDueDate: String(input.firstDueDate),
+      });
+    }
+    return { sale, transaction, installments };
   }
   const conn = await pool.getConnection();
   try {
