@@ -346,12 +346,16 @@ export default function ProjectPage() {
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   placeholder="المساحة (م²)"
                   value={newSale.area}
-                  onChange={(e) => setNewSale({ ...newSale, area: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, area: e.target.value })
+                  }
                 />
                 <select
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   value={newSale.paymentMethod}
-                  onChange={(e) => setNewSale({ ...newSale, paymentMethod: e.target.value })}
+                  onChange={(e) =>
+                    setNewSale({ ...newSale, paymentMethod: e.target.value })
+                  }
                 >
                   <option value="كاش">كاش</option>
                   <option value="تقسيط">تقسيط</option>
