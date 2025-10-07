@@ -271,6 +271,19 @@ export default function ProjectPage() {
                   }
                 />
               </div>
+              {newCost.type === "other" ? (
+                <input
+                  className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                  placeholder="حدد نوع التكلفة"
+                  value={newCost.customTypeLabel}
+                  onChange={(e) =>
+                    setNewCost((prev) => ({
+                      ...prev,
+                      customTypeLabel: e.target.value,
+                    }))
+                  }
+                />
+              ) : null}
               <input
                 type="date"
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
@@ -306,7 +319,7 @@ export default function ProjectPage() {
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
-            <h3 className="font-semibold mb-3">تسجيل بيع وإصدار فاتورة</h3>
+            <h3 className="font-semibold mb-3">ت��جيل بيع وإصدار فاتورة</h3>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
                 <input
