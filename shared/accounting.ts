@@ -40,7 +40,11 @@ export interface Project {
   createdAt: string;
 }
 
-export type ProjectCostType = "construction" | "operation" | "expense" | "other";
+export type ProjectCostType =
+  | "construction"
+  | "operation"
+  | "expense"
+  | "other";
 
 export interface ProjectCost {
   id: string;

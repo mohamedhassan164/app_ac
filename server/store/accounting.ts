@@ -855,14 +855,7 @@ export async function createProjectCost(
     await conn.query(
       `INSERT INTO project_costs (id, project_id, type, amount, date, note)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        input.projectId,
-        input.type,
-        input.amount,
-        input.date,
-        storedNote,
-      ],
+      [id, input.projectId, input.type, input.amount, input.date, storedNote],
     );
     const [rows] = await conn.query<ProjectCostRow[]>(
       `SELECT id, project_id, type, amount, date, note, created_at

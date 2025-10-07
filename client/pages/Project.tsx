@@ -263,7 +263,8 @@ export default function ProjectPage() {
                     setNewCost((prev) => ({
                       ...prev,
                       type: value,
-                      customTypeLabel: value === "other" ? prev.customTypeLabel : "",
+                      customTypeLabel:
+                        value === "other" ? prev.customTypeLabel : "",
                     }));
                   }}
                 >
