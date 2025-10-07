@@ -83,7 +83,7 @@ export default function ProjectPage() {
     if (!newCost.amount) return toast.error("المبلغ مطلوب");
     const amount = Number(newCost.amount);
     if (!Number.isFinite(amount) || amount <= 0)
-      return toast.error("قيمة غ��ر صحيحة");
+      return toast.error("قيمة غير صحيحة");
     const customTypeLabel =
       newCost.type === "other" ? newCost.customTypeLabel.trim() : undefined;
     if (newCost.type === "other" && !customTypeLabel) {
@@ -248,16 +248,19 @@ export default function ProjectPage() {
                 <select
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   value={newCost.type}
-                  onChange={(e) =>
-                    setNewCost({
-                      ...newCost,
-                      type: e.target.value as ProjectCost["type"],
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value as ProjectCost["type"];
+                    setNewCost((prev) => ({
+                      ...prev,
+                      type: value,
+                      customTypeLabel: value === "other" ? prev.customTypeLabel : "",
+                    }));
+                  }}
                 >
                   <option value="construction">إنشاء</option>
                   <option value="operation">تشغيل</option>
                   <option value="expense">مصروفات</option>
+                  <option value="other">أخرى</option>
                 </select>
                 <input
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
