@@ -221,11 +221,8 @@ function getFallbackSnapshot(): AccountingSnapshot {
     transactions: sortTransactions(
       Array.from(fallbackStore.transactions.values()),
     ),
-    items: sortByDateDesc(
-      Array.from(fallbackStore.items.values()).map((item) => ({
-        ...item,
-        updatedAt: item.updatedAt,
-      })),
+    items: [...fallbackStore.items.values()].sort((a, b) =>
+      a.updatedAt === b.updatedAt ? 0 : a.updatedAt > b.updatedAt ? -1 : 1,
     ),
     movements: sortTransactionsFallbackMovements(
       Array.from(fallbackStore.movements.values()),
