@@ -595,9 +595,9 @@ export default function AccountingSystem() {
         <section className="bg-white border border-slate-200 rounded-xl p-4 shadow">
           <h3 className="font-semibold mb-3">المعاملات المالية</h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+            <table className="w-full table-auto border-collapse text-sm">
               <thead>
-                <tr className="text-left bg-slate-50">
+                <tr className="text-right bg-slate-50">
                   <th className="px-3 py-2">التاريخ</th>
                   <th className="px-3 py-2">النوع</th>
                   <th className="px-3 py-2">الوصف</th>
@@ -880,9 +880,9 @@ export default function AccountingSystem() {
             <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
               <h3 className="font-semibold mb-3">حركة المخزون</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
+                <table className="w-full table-auto border-collapse text-sm">
                   <thead>
-                    <tr className="text-left bg-slate-50">
+                    <tr className="text-right bg-slate-50">
                       <th className="px-3 py-2">التاريخ</th>
                       <th className="px-3 py-2">المادة</th>
                       <th className="px-3 py-2">نوع الحركة</th>
