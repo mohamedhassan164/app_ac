@@ -81,6 +81,8 @@ interface ProjectSaleRow extends RowDataPacket {
   price: number | string;
   date: string | Date;
   terms: string | null;
+  area: string | null;
+  payment_method: string | null;
   created_at: string | Date | null;
 }
 
@@ -197,6 +199,8 @@ function mapProjectSaleRow(row: ProjectSaleRow): ProjectSale {
     price: asNumber(row.price),
     date: formatDate(row.date),
     terms: row.terms,
+    area: row.area ?? null,
+    paymentMethod: row.payment_method ?? null,
   };
 }
 
@@ -335,7 +339,7 @@ export async function getAccountingSnapshot(): Promise<AccountingSnapshot> {
      ORDER BY date DESC, created_at DESC`,
   );
   const [saleRows] = await pool.query<ProjectSaleRow[]>(
-    `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+    `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
      FROM project_sales
      ORDER BY date DESC, created_at DESC`,
   );
@@ -713,7 +717,7 @@ export async function getProjectSnapshot(
     [id],
   );
   const [saleRows] = await pool.query<ProjectSaleRow[]>(
-    `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+    `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
      FROM project_sales
      WHERE project_id = ?
      ORDER BY date DESC, created_at DESC`,
@@ -845,6 +849,8 @@ export async function createProjectSale(
       price: input.price,
       date: input.date,
       terms: input.terms ?? null,
+      area: input.area ?? null,
+      paymentMethod: input.paymentMethod ?? null,
     };
     fallbackStore.sales.set(sale.id, sale);
     const transaction = createTransactionFallback({
@@ -862,8 +868,8 @@ export async function createProjectSale(
     await conn.beginTransaction();
     const id = crypto.randomUUID();
     await conn.query(
-      `INSERT INTO project_sales (id, project_id, unit_no, buyer, price, date, terms)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO project_sales (id, project_id, unit_no, buyer, price, date, terms, area, payment_method)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         input.projectId,
@@ -872,10 +878,12 @@ export async function createProjectSale(
         input.price,
         input.date,
         input.terms || null,
+        input.area || null,
+        input.paymentMethod || null,
       ],
     );
     const [rows] = await conn.query<ProjectSaleRow[]>(
-      `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+      `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
        FROM project_sales WHERE id = ? LIMIT 1`,
       [id],
     );

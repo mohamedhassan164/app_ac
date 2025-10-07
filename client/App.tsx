@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
+import ProjectPage from "./pages/Project";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,14 @@ const App = () => {
                   element={
                     <Protected>
                       <Dashboard />
+                    </Protected>
+                  }
+                />
+                <Route
+                  path="/projects/:id"
+                  element={
+                    <Protected>
+                      <ProjectPage />
                     </Protected>
                   }
                 />

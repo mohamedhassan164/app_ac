@@ -57,6 +57,8 @@ export interface ProjectSale {
   price: number;
   date: string;
   terms?: string | null;
+  area?: string | null;
+  paymentMethod?: string | null;
 }
 
 export interface ProjectSnapshot {
@@ -149,6 +151,8 @@ export interface ProjectSaleCreateInput {
   price: number;
   date: string;
   terms?: string | null;
+  area?: string | null;
+  paymentMethod?: string | null;
   approved: boolean;
   createdBy?: string | null;
 }

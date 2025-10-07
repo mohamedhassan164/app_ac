@@ -430,6 +430,8 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
       price,
       date: String(body.date),
       terms: body.terms ?? null,
+      area: body.area ?? null,
+      paymentMethod: body.paymentMethod ?? null,
       approved: canApprove(user) && Boolean(body.approved),
       createdBy: user.id,
     });
