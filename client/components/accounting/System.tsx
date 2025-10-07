@@ -367,7 +367,7 @@ export default function AccountingSystem() {
       !newProject.floors ||
       !newProject.units
     ) {
-      toast.error("الرجاء إدخال بيانات المشروع كاملة");
+      toast.error("الرجاء إدخال بيانات المشر��ع كاملة");
       return;
     }
     const floors = Number(newProject.floors);
@@ -402,105 +402,6 @@ export default function AccountingSystem() {
     }
   };
 
-  const addProjectCost = async () => {
-    if (!newCost.projectId || !newCost.amount) {
-      toast.error("الرجاء اختيار المشروع وإدخال المبلغ");
-      return;
-    }
-    const project = projects.find((p) => p.id === newCost.projectId);
-    if (!project) {
-      toast.error("المشروع غير موجود");
-      return;
-    }
-    const amount = Number(newCost.amount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error("قيمة المبلغ غير صحيحة");
-      return;
-    }
-    try {
-      setSavingCost(true);
-      const result = await createProjectCost({
-        projectId: newCost.projectId,
-        projectName: project.name,
-        type: newCost.type,
-        amount,
-        date: newCost.date,
-        note: newCost.note,
-        approved: isManager || isAccountant,
-        createdBy: user?.id ?? null,
-      });
-      setCosts((prev) => [result.cost, ...prev]);
-      setTransactions((prev) => [result.transaction, ...prev]);
-      toast.success("تم تسجيل تكلفة المشروع وتحديث المصروفات");
-      setNewCost({
-        projectId: "",
-        type: "construction",
-        amount: "",
-        date: today(),
-        note: "",
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "تعذر تسجيل التكلفة";
-      toast.error("فشل تسجيل التكلفة", { description: message });
-    } finally {
-      setSavingCost(false);
-    }
-  };
-
-  const addProjectSale = async () => {
-    if (
-      !newSale.projectId ||
-      !newSale.price ||
-      !newSale.unitNo ||
-      !newSale.buyer
-    ) {
-      toast.error("الرجاء إدخال بيانات البيع كاملة");
-      return;
-    }
-    const project = projects.find((p) => p.id === newSale.projectId);
-    if (!project) {
-      toast.error("المشروع غير موجود");
-      return;
-    }
-    const price = Number(newSale.price);
-    if (!Number.isFinite(price) || price <= 0) {
-      toast.error("قيمة السعر غير صحيحة");
-      return;
-    }
-    try {
-      setSavingSale(true);
-      const result = await createProjectSale({
-        projectId: newSale.projectId,
-        projectName: project.name,
-        unitNo: newSale.unitNo,
-        buyer: newSale.buyer,
-        price,
-        date: newSale.date,
-        terms: newSale.terms,
-        approved: isManager || isAccountant,
-        createdBy: user?.id ?? null,
-      });
-      setSales((prev) => [result.sale, ...prev]);
-      setTransactions((prev) => [result.transaction, ...prev]);
-      toast.success("تم تسجيل البيع وتحديث الإيرادات");
-      setNewSale({
-        projectId: "",
-        unitNo: "",
-        buyer: "",
-        price: "",
-        date: today(),
-        terms: "",
-      });
-      printInvoice(result.sale.id, result.sale, project);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "تعذر تسجيل البيع";
-      toast.error("فشل تسجيل البيع", { description: message });
-    } finally {
-      setSavingSale(false);
-    }
-  };
 
   const projectTotals = useCallback(
     (id: string) => {
@@ -536,7 +437,7 @@ export default function AccountingSystem() {
       <style>body{font-family:Arial,system-ui;padding:24px;background:#f6f7fb;color:#111} .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;max-width:720px;margin:0 auto} .h{font-weight:800;font-size:20px;margin-bottom:8px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} .row{display:flex;justify-content:space-between;margin:6px 0} .total{font-weight:800;font-size:18px} .mt{margin-top:16px} .btn{display:inline-block;margin-top:16px;padding:10px 16px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>
     </head><body>
       <div class="card">
-        <div class="h">فاتورة بيع وحدة عقاري��</div>
+        <div class="h">فاتورة بيع وحدة عقارية</div>
         <div class="grid">
           <div class="row"><div>المشروع:</div><div>${project?.name ?? ""}</div></div>
           <div class="row"><div>الموقع:</div><div>${project?.location ?? ""}</div></div>
@@ -564,7 +465,7 @@ export default function AccountingSystem() {
     <div className="space-y-6">
       {loadingError && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700">
-          <div className="font-semibold">تعذر تحميل البي��نات</div>
+          <div className="font-semibold">تعذر تحميل البيانات</div>
           <div className="text-sm">{loadingError}</div>
           <button
             type="button"
@@ -655,7 +556,7 @@ export default function AccountingSystem() {
             />
             <Stat
               value={totals.profit}
-              label="صافي الربح"
+              label="صافي ال��بح"
               color="from-indigo-100 to-indigo-200"
               icon={<DollarSign className="h-5 w-5 text-indigo-700" />}
             />
@@ -791,7 +692,7 @@ export default function AccountingSystem() {
             </table>
             {transactions.length === 0 && (
               <div className="py-6 text-center text-sm text-slate-500">
-                لا توجد م��املات مسجلة بعد.
+                لا توجد معاملات مسجلة بعد.
               </div>
             )}
           </div>
@@ -1133,7 +1034,7 @@ export default function AccountingSystem() {
                     setNewCost({ ...newCost, projectId: e.target.value })
                   }
                 >
-                  <option value="">اختر ال��شروع</option>
+                  <option value="">اختر المشروع</option>
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -1392,8 +1293,8 @@ export default function AccountingSystem() {
                                   <strong>مباعة:</strong> {t.sold}
                                 </div>
                                 <div>
-                                  <strong>ا��تكاليف:</strong>{" "}
-                                  {t.costs.toLocaleString()} ج.م
+                                  <strong>التكاليف:</strong>{" "}
+                                  {t.costs.toLocaleString()} ج.��
                                 </div>
                                 <div>
                                   <strong>المبيعات:</strong>{" "}
@@ -1622,7 +1523,7 @@ function ReportsSection({
         title: "تق��ير الأرباح والخسائر",
         headers: ["البند", "القيمة"],
         rows: [
-          ["إجمالي الإيرادات", rev.toLocaleString() + " ج.م"],
+          ["إجما��ي الإيرادات", rev.toLocaleString() + " ج.م"],
           ["إجمالي المصروفات", exp.toLocaleString() + " ج.م"],
           ["صافي الربح", (rev - exp).toLocaleString() + " ج.م"],
         ],
