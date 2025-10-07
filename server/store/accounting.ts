@@ -106,7 +106,8 @@ function asNumber(value: unknown): number {
 function asBoolean(value: unknown): boolean {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return value !== 0;
-  if (typeof value === "string") return value !== "0" && value.toLowerCase() !== "false";
+  if (typeof value === "string")
+    return value !== "0" && value.toLowerCase() !== "false";
   return Boolean(value);
 }
 
@@ -119,7 +120,9 @@ function formatDate(value: string | Date | null | undefined): string {
   return value.toISOString().slice(0, 10);
 }
 
-function formatTimestamp(value: string | Date | null | undefined): string | null {
+function formatTimestamp(
+  value: string | Date | null | undefined,
+): string | null {
   if (!value) return null;
   if (typeof value === "string") return value;
   return value.toISOString();
@@ -197,7 +200,9 @@ function mapProjectSaleRow(row: ProjectSaleRow): ProjectSale {
 }
 
 function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
+  return [...items].sort((a, b) =>
+    a.date === b.date ? 0 : a.date > b.date ? -1 : 1,
+  );
 }
 
 function sortTransactions(items: Transaction[]): Transaction[] {
@@ -213,12 +218,18 @@ function sortTransactions(items: Transaction[]): Transaction[] {
 
 function getFallbackSnapshot(): AccountingSnapshot {
   return {
-    transactions: sortTransactions(Array.from(fallbackStore.transactions.values())),
-    items: sortByDateDesc(Array.from(fallbackStore.items.values()).map((item) => ({
-      ...item,
-      updatedAt: item.updatedAt,
-    }))),
-    movements: sortTransactionsFallbackMovements(Array.from(fallbackStore.movements.values())),
+    transactions: sortTransactions(
+      Array.from(fallbackStore.transactions.values()),
+    ),
+    items: sortByDateDesc(
+      Array.from(fallbackStore.items.values()).map((item) => ({
+        ...item,
+        updatedAt: item.updatedAt,
+      })),
+    ),
+    movements: sortTransactionsFallbackMovements(
+      Array.from(fallbackStore.movements.values()),
+    ),
     projects: sortByDateDesc(Array.from(fallbackStore.projects.values())),
     costs: sortTransactionsFallback(Array.from(fallbackStore.costs.values())),
     sales: sortTransactionsFallback(Array.from(fallbackStore.sales.values())),
@@ -230,7 +241,9 @@ function sortTransactionsFallback<T extends { date: string }>(items: T[]): T[] {
 }
 
 function sortTransactionsFallbackMovements(items: Movement[]): Movement[] {
-  return [...items].sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
+  return [...items].sort((a, b) =>
+    a.date === b.date ? 0 : a.date > b.date ? -1 : 1,
+  );
 }
 
 async function insertTransactionDb(
@@ -646,7 +659,14 @@ export async function createProject(
   await pool.query(
     `INSERT INTO projects (id, name, location, floors, units, created_at)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [id, input.name, input.location, input.floors, input.units, input.createdAt],
+    [
+      id,
+      input.name,
+      input.location,
+      input.floors,
+      input.units,
+      input.createdAt,
+    ],
   );
   const [rows] = await pool.query<ProjectRow[]>(
     `SELECT id, name, location, floors, units, created_at
@@ -701,7 +721,14 @@ export async function createProjectCost(
     await conn.query(
       `INSERT INTO project_costs (id, project_id, type, amount, date, note)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, input.projectId, input.type, input.amount, input.date, input.note || null],
+      [
+        id,
+        input.projectId,
+        input.type,
+        input.amount,
+        input.date,
+        input.note || null,
+      ],
     );
     const [rows] = await conn.query<ProjectCostRow[]>(
       `SELECT id, project_id, type, amount, date, note, created_at

@@ -34,7 +34,11 @@ import {
 import { getUserByTokenAsync } from "../store/auth";
 import { parseBody } from "../utils/parse-body";
 
-function respondError(res: Parameters<RequestHandler>[1], status: number, message: string) {
+function respondError(
+  res: Parameters<RequestHandler>[1],
+  status: number,
+  message: string,
+) {
   res.status(status).json({ error: message } as ApiError);
 }
 
@@ -147,7 +151,12 @@ export const createInventoryItemHandler: RequestHandler = async (req, res) => {
   }
   const quantity = ensureNumber(body.quantity);
   const min = ensureNumber(body.min);
-  if (!Number.isFinite(quantity) || quantity < 0 || !Number.isFinite(min) || min < 0) {
+  if (
+    !Number.isFinite(quantity) ||
+    quantity < 0 ||
+    !Number.isFinite(min) ||
+    min < 0
+  ) {
     respondError(res, 400, "Invalid numeric values");
     return;
   }
@@ -176,17 +185,31 @@ export const deleteInventoryItemHandler: RequestHandler = async (req, res) => {
   }
 };
 
-export const recordInventoryReceiptHandler: RequestHandler = async (req, res) => {
+export const recordInventoryReceiptHandler: RequestHandler = async (
+  req,
+  res,
+) => {
   const user = await requireAuth(req, res);
   if (!user) return;
   const body = parseBody<InventoryReceiptInput>(req.body);
-  if (!body.itemId || !body.qty || !body.unitPrice || !body.date || !body.supplier) {
+  if (
+    !body.itemId ||
+    !body.qty ||
+    !body.unitPrice ||
+    !body.date ||
+    !body.supplier
+  ) {
     respondError(res, 400, "Missing required fields");
     return;
   }
   const qty = ensureNumber(body.qty);
   const unitPrice = ensureNumber(body.unitPrice);
-  if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(unitPrice) || unitPrice <= 0) {
+  if (
+    !Number.isFinite(qty) ||
+    qty <= 0 ||
+    !Number.isFinite(unitPrice) ||
+    unitPrice <= 0
+  ) {
     respondError(res, 400, "Invalid numeric values");
     return;
   }
@@ -210,13 +233,24 @@ export const recordInventoryIssueHandler: RequestHandler = async (req, res) => {
   const user = await requireAuth(req, res);
   if (!user) return;
   const body = parseBody<InventoryIssueInput>(req.body);
-  if (!body.itemId || !body.qty || !body.unitPrice || !body.date || !body.project) {
+  if (
+    !body.itemId ||
+    !body.qty ||
+    !body.unitPrice ||
+    !body.date ||
+    !body.project
+  ) {
     respondError(res, 400, "Missing required fields");
     return;
   }
   const qty = ensureNumber(body.qty);
   const unitPrice = ensureNumber(body.unitPrice);
-  if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(unitPrice) || unitPrice <= 0) {
+  if (
+    !Number.isFinite(qty) ||
+    qty <= 0 ||
+    !Number.isFinite(unitPrice) ||
+    unitPrice <= 0
+  ) {
     respondError(res, 400, "Invalid numeric values");
     return;
   }
@@ -244,13 +278,24 @@ export const createProjectHandler: RequestHandler = async (req, res) => {
     return;
   }
   const body = parseBody<ProjectCreateInput>(req.body);
-  if (!body.name || !body.location || !body.createdAt || !body.floors || !body.units) {
+  if (
+    !body.name ||
+    !body.location ||
+    !body.createdAt ||
+    !body.floors ||
+    !body.units
+  ) {
     respondError(res, 400, "Missing required fields");
     return;
   }
   const floors = ensureNumber(body.floors);
   const units = ensureNumber(body.units);
-  if (!Number.isFinite(floors) || floors <= 0 || !Number.isFinite(units) || units <= 0) {
+  if (
+    !Number.isFinite(floors) ||
+    floors <= 0 ||
+    !Number.isFinite(units) ||
+    units <= 0
+  ) {
     respondError(res, 400, "Invalid numeric values");
     return;
   }
@@ -319,7 +364,13 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
   }
   const body = parseBody<ProjectSaleCreateInput>(req.body);
   const projectId = req.params.id || body.projectId;
-  if (!projectId || !body.projectName || !body.unitNo || !body.buyer || !body.date) {
+  if (
+    !projectId ||
+    !body.projectName ||
+    !body.unitNo ||
+    !body.buyer ||
+    !body.date
+  ) {
     respondError(res, 400, "Missing required fields");
     return;
   }
