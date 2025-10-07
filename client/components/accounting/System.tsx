@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DollarSign, ArrowUp, ArrowDown, Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import UserManagement from "@/components/users/UserManagement";
 import { toast } from "sonner";
@@ -14,8 +8,6 @@ import {
   approveTransaction,
   createInventoryItem,
   createProject,
-  createProjectCost,
-  createProjectSale,
   createTransaction,
   deleteInventoryItem,
   deleteTransaction,
@@ -37,6 +29,7 @@ const today = () => new Date().toLocaleDateString("en-CA");
 
 export default function AccountingSystem() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isManager = user?.role === "manager";
   const isAccountant = user?.role === "accountant";
   const isEmployee = user?.role === "employee";
@@ -91,21 +84,6 @@ export default function AccountingSystem() {
     floors: "",
     units: "",
   });
-  const [newCost, setNewCost] = useState({
-    projectId: "",
-    type: "construction" as ProjectCost["type"],
-    amount: "",
-    date: today(),
-    note: "",
-  });
-  const [newSale, setNewSale] = useState({
-    projectId: "",
-    unitNo: "",
-    buyer: "",
-    price: "",
-    date: today(),
-    terms: "",
-  });
 
   const [savingQuick, setSavingQuick] = useState(false);
 
@@ -114,8 +92,6 @@ export default function AccountingSystem() {
   const [savingReceive, setSavingReceive] = useState(false);
   const [savingIssue, setSavingIssue] = useState(false);
   const [savingProject, setSavingProject] = useState(false);
-  const [savingCost, setSavingCost] = useState(false);
-  const [savingSale, setSavingSale] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [deletingTransactionId, setDeletingTransactionId] = useState<
     string | null
@@ -264,7 +240,7 @@ export default function AccountingSystem() {
       setDeletingItemId(id);
       await deleteInventoryItem(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
-      toast.success("تم حذف المادة");
+      toast.success("تم حذف الماد��");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "تعذر حذف المادة";
@@ -392,7 +368,7 @@ export default function AccountingSystem() {
       !newProject.floors ||
       !newProject.units
     ) {
-      toast.error("الرجاء إدخال بيانات المشروع كاملة");
+      toast.error("الرجاء إدخال بيا��ات المشروع كاملة");
       return;
     }
     const floors = Number(newProject.floors);
@@ -427,106 +403,6 @@ export default function AccountingSystem() {
     }
   };
 
-  const addProjectCost = async () => {
-    if (!newCost.projectId || !newCost.amount) {
-      toast.error("الرجاء اختيار المشروع وإدخال المبلغ");
-      return;
-    }
-    const project = projects.find((p) => p.id === newCost.projectId);
-    if (!project) {
-      toast.error("المشروع غير موجود");
-      return;
-    }
-    const amount = Number(newCost.amount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error("قيمة المبلغ غير صحيحة");
-      return;
-    }
-    try {
-      setSavingCost(true);
-      const result = await createProjectCost({
-        projectId: newCost.projectId,
-        projectName: project.name,
-        type: newCost.type,
-        amount,
-        date: newCost.date,
-        note: newCost.note,
-        approved: isManager || isAccountant,
-        createdBy: user?.id ?? null,
-      });
-      setCosts((prev) => [result.cost, ...prev]);
-      setTransactions((prev) => [result.transaction, ...prev]);
-      toast.success("تم تسجيل تكلفة المشروع وتحديث المصروفات");
-      setNewCost({
-        projectId: "",
-        type: "construction",
-        amount: "",
-        date: today(),
-        note: "",
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "تعذر تسجيل التكلفة";
-      toast.error("فشل تسجيل التكلفة", { description: message });
-    } finally {
-      setSavingCost(false);
-    }
-  };
-
-  const addProjectSale = async () => {
-    if (
-      !newSale.projectId ||
-      !newSale.price ||
-      !newSale.unitNo ||
-      !newSale.buyer
-    ) {
-      toast.error("الرجاء إدخال بيانات البيع كاملة");
-      return;
-    }
-    const project = projects.find((p) => p.id === newSale.projectId);
-    if (!project) {
-      toast.error("المشروع غير موجود");
-      return;
-    }
-    const price = Number(newSale.price);
-    if (!Number.isFinite(price) || price <= 0) {
-      toast.error("قيمة السعر غير صحيحة");
-      return;
-    }
-    try {
-      setSavingSale(true);
-      const result = await createProjectSale({
-        projectId: newSale.projectId,
-        projectName: project.name,
-        unitNo: newSale.unitNo,
-        buyer: newSale.buyer,
-        price,
-        date: newSale.date,
-        terms: newSale.terms,
-        approved: isManager || isAccountant,
-        createdBy: user?.id ?? null,
-      });
-      setSales((prev) => [result.sale, ...prev]);
-      setTransactions((prev) => [result.transaction, ...prev]);
-      toast.success("تم تسجيل البيع وتحديث الإيرادات");
-      setNewSale({
-        projectId: "",
-        unitNo: "",
-        buyer: "",
-        price: "",
-        date: today(),
-        terms: "",
-      });
-      printInvoice(result.sale.id, result.sale, project);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "تعذر تسجيل البيع";
-      toast.error("فشل تسجيل البيع", { description: message });
-    } finally {
-      setSavingSale(false);
-    }
-  };
-
   const projectTotals = useCallback(
     (id: string) => {
       const projectCosts = costs
@@ -544,38 +420,6 @@ export default function AccountingSystem() {
     },
     [costs, sales],
   );
-
-  function printInvoice(
-    id: string,
-    fallbackSale?: ProjectSale,
-    fallbackProject?: Project,
-  ) {
-    const sale = fallbackSale ?? sales.find((x) => x.id === id);
-    if (!sale) return;
-    const project =
-      fallbackProject ?? projects.find((x) => x.id === sale.projectId);
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document
-      .write(`<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة بيع</title>
-      <style>body{font-family:Arial,system-ui;padding:24px;background:#f6f7fb;color:#111} .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;max-width:720px;margin:0 auto} .h{font-weight:800;font-size:20px;margin-bottom:8px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} .row{display:flex;justify-content:space-between;margin:6px 0} .total{font-weight:800;font-size:18px} .mt{margin-top:16px} .btn{display:inline-block;margin-top:16px;padding:10px 16px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>
-    </head><body>
-      <div class="card">
-        <div class="h">فاتورة بيع وحدة عقارية</div>
-        <div class="grid">
-          <div class="row"><div>المشروع:</div><div>${project?.name ?? ""}</div></div>
-          <div class="row"><div>الموقع:</div><div>${project?.location ?? ""}</div></div>
-          <div class="row"><div>رقم الوحدة:</div><div>${sale.unitNo}</div></div>
-          <div class="row"><div>المشتري:</div><div>${sale.buyer}</div></div>
-          <div class="row"><div>التاريخ:</div><div>${sale.date}</div></div>
-        </div>
-        <div class="mt row total"><div>السعر الإجمالي:</div><div>${sale.price.toLocaleString()} ج.م</div></div>
-        ${sale.terms ? `<div class="mt">الشروط: ${sale.terms}</div>` : ""}
-        <a href="#" class="btn" onclick="window.print();return false;">طباعة</a>
-      </div>
-    </body></html>`);
-    win.document.close();
-  }
 
   if (initialLoading) {
     return (

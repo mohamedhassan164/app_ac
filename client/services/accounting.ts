@@ -13,6 +13,7 @@ import type {
   ProjectCreateInput,
   ProjectSaleCreateInput,
   ProjectSaleCreateResult,
+  ProjectSnapshot,
   Transaction,
   TransactionCreateInput,
 } from "@shared/accounting";
@@ -152,4 +153,27 @@ export async function createProjectSale(
       body: JSON.stringify(input),
     },
   );
+}
+
+export async function loadProjectSnapshot(
+  id: string,
+): Promise<ProjectSnapshot | null> {
+  try {
+    return await request<ProjectSnapshot>(
+      `/api/accounting/projects/${id}/details`,
+      {
+        method: "GET",
+        headers: { ...authHeaders() },
+      },
+    );
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  await request<void>(`/api/accounting/projects/${id}`, {
+    method: "DELETE",
+    headers: { ...authHeaders() },
+  });
 }

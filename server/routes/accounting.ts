@@ -25,9 +25,11 @@ import {
   createProjectSale as createProjectSaleStore,
   createTransaction as createTransactionStore,
   deleteInventoryItem as deleteInventoryItemStore,
+  deleteProject as deleteProjectStore,
   deleteTransaction as deleteTransactionStore,
   getAccountingSnapshot as getAccountingSnapshotStore,
   getProjectById as getProjectByIdStore,
+  getProjectSnapshot as getProjectSnapshotStore,
   recordInventoryIssue as recordInventoryIssueStore,
   recordInventoryReceipt as recordInventoryReceiptStore,
 } from "../store/accounting";
@@ -328,6 +330,32 @@ export const getProjectHandler: RequestHandler = async (req, res) => {
     return;
   }
   res.json(project as Project);
+};
+
+export const getProjectDetailsHandler: RequestHandler = async (req, res) => {
+  const user = await requireAuth(req, res);
+  if (!user) return;
+  const snapshot = await getProjectSnapshotStore(req.params.id);
+  if (!snapshot) {
+    respondError(res, 404, "Project not found");
+    return;
+  }
+  res.json(snapshot);
+};
+
+export const deleteProjectHandler: RequestHandler = async (req, res) => {
+  const user = await requireAuth(req, res);
+  if (!user) return;
+  if (!canApprove(user)) {
+    respondError(res, 403, "Forbidden");
+    return;
+  }
+  try {
+    await deleteProjectStore(req.params.id);
+    res.status(204).end();
+  } catch (error: any) {
+    respondError(res, 404, error?.message || "Project not found");
+  }
 };
 
 export const createProjectCostHandler: RequestHandler = async (req, res) => {
