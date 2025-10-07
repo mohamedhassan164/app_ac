@@ -83,21 +83,6 @@ export default function AccountingSystem() {
     floors: "",
     units: "",
   });
-  const [newCost, setNewCost] = useState({
-    projectId: "",
-    type: "construction" as ProjectCost["type"],
-    amount: "",
-    date: today(),
-    note: "",
-  });
-  const [newSale, setNewSale] = useState({
-    projectId: "",
-    unitNo: "",
-    buyer: "",
-    price: "",
-    date: today(),
-    terms: "",
-  });
 
   const [savingQuick, setSavingQuick] = useState(false);
 
@@ -106,8 +91,6 @@ export default function AccountingSystem() {
   const [savingReceive, setSavingReceive] = useState(false);
   const [savingIssue, setSavingIssue] = useState(false);
   const [savingProject, setSavingProject] = useState(false);
-  const [savingCost, setSavingCost] = useState(false);
-  const [savingSale, setSavingSale] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [deletingTransactionId, setDeletingTransactionId] = useState<
     string | null
@@ -273,7 +256,7 @@ export default function AccountingSystem() {
       !receive.unitPrice ||
       !receive.supplier
     ) {
-      toast.error("الرجاء ��دخال جميع بيانات الوارد");
+      toast.error("الرجاء إدخال جميع بيانات الوارد");
       return;
     }
     const qty = Number(receive.qty);
@@ -553,7 +536,7 @@ export default function AccountingSystem() {
       <style>body{font-family:Arial,system-ui;padding:24px;background:#f6f7fb;color:#111} .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;max-width:720px;margin:0 auto} .h{font-weight:800;font-size:20px;margin-bottom:8px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} .row{display:flex;justify-content:space-between;margin:6px 0} .total{font-weight:800;font-size:18px} .mt{margin-top:16px} .btn{display:inline-block;margin-top:16px;padding:10px 16px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>
     </head><body>
       <div class="card">
-        <div class="h">فاتورة بيع وحدة عقارية</div>
+        <div class="h">فاتورة بيع وحدة عقاري��</div>
         <div class="grid">
           <div class="row"><div>المشروع:</div><div>${project?.name ?? ""}</div></div>
           <div class="row"><div>الموقع:</div><div>${project?.location ?? ""}</div></div>
@@ -581,7 +564,7 @@ export default function AccountingSystem() {
     <div className="space-y-6">
       {loadingError && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700">
-          <div className="font-semibold">تعذر تحميل البيانات</div>
+          <div className="font-semibold">تعذر تحميل البي��نات</div>
           <div className="text-sm">{loadingError}</div>
           <button
             type="button"
@@ -808,7 +791,7 @@ export default function AccountingSystem() {
             </table>
             {transactions.length === 0 && (
               <div className="py-6 text-center text-sm text-slate-500">
-                لا توجد معاملات مسجلة بعد.
+                لا توجد م��املات مسجلة بعد.
               </div>
             )}
           </div>
@@ -1150,7 +1133,7 @@ export default function AccountingSystem() {
                     setNewCost({ ...newCost, projectId: e.target.value })
                   }
                 >
-                  <option value="">اختر المشروع</option>
+                  <option value="">اختر ال��شروع</option>
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -1409,7 +1392,7 @@ export default function AccountingSystem() {
                                   <strong>مباعة:</strong> {t.sold}
                                 </div>
                                 <div>
-                                  <strong>التكاليف:</strong>{" "}
+                                  <strong>ا��تكاليف:</strong>{" "}
                                   {t.costs.toLocaleString()} ج.م
                                 </div>
                                 <div>
