@@ -16,6 +16,7 @@ import type {
   ProjectSnapshot,
   Transaction,
   TransactionCreateInput,
+  Installment,
 } from "@shared/accounting";
 
 function authHeaders() {
