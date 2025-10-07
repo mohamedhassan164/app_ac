@@ -403,7 +403,6 @@ export default function AccountingSystem() {
     }
   };
 
-
   const projectTotals = useCallback(
     (id: string) => {
       const projectCosts = costs
