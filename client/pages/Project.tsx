@@ -8,6 +8,7 @@ import {
   createProjectSale,
   deleteProject,
   loadProjectSnapshot,
+  payInstallment,
 } from "@/services/accounting";
 import type {
   ProjectCost,
