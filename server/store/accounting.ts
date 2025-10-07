@@ -199,6 +199,8 @@ function mapProjectSaleRow(row: ProjectSaleRow): ProjectSale {
     price: asNumber(row.price),
     date: formatDate(row.date),
     terms: row.terms,
+    area: row.area ?? null,
+    paymentMethod: row.payment_method ?? null,
   };
 }
 
