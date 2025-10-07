@@ -226,13 +226,15 @@ function mapProjectRow(row: ProjectRow): Project {
 }
 
 function mapProjectCostRow(row: ProjectCostRow): ProjectCost {
+  const noteData = parseProjectCostNote(row.note ?? null);
   return {
     id: row.id,
     projectId: row.project_id,
     type: row.type,
+    customTypeLabel: noteData.customTypeLabel,
     amount: asNumber(row.amount),
     date: formatDate(row.date),
-    note: row.note ?? "",
+    note: noteData.note,
   };
 }
 
@@ -618,7 +620,7 @@ export async function recordInventoryIssue(
     const transaction = createTransactionFallback({
       date: input.date,
       type: "expense",
-      description: `صرف ${item.name} لمشروع ${input.project} (${input.qty} ${item.unit} × ${input.unitPrice})`,
+      description: `صرف ${item.name} لمشر��ع ${input.project} (${input.qty} ${item.unit} × ${input.unitPrice})`,
       amount: movement.total,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
