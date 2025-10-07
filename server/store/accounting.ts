@@ -717,7 +717,7 @@ export async function getProjectSnapshot(
     [id],
   );
   const [saleRows] = await pool.query<ProjectSaleRow[]>(
-    `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+    `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
      FROM project_sales
      WHERE project_id = ?
      ORDER BY date DESC, created_at DESC`,
