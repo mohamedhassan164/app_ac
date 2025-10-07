@@ -443,8 +443,10 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
     respondError(res, 400, "Invalid price");
     return;
   }
-  const downPayment = body.downPayment == null ? null : ensureNumber(body.downPayment);
-  const monthlyAmount = body.monthlyAmount == null ? null : ensureNumber(body.monthlyAmount);
+  const downPayment =
+    body.downPayment == null ? null : ensureNumber(body.downPayment);
+  const monthlyAmount =
+    body.monthlyAmount == null ? null : ensureNumber(body.monthlyAmount);
   const months = body.months == null ? null : ensureNumber(body.months);
   try {
     const result = await createProjectSaleStore({
@@ -478,8 +480,12 @@ export const payInstallmentHandler: RequestHandler = async (req, res) => {
     return;
   }
   const id = req.params.id;
-  const body = parseBody<Record<string, unknown>>(req.body) as { date?: string };
-  const date = body?.date ? String(body.date) : new Date().toISOString().slice(0,10);
+  const body = parseBody<Record<string, unknown>>(req.body) as {
+    date?: string;
+  };
+  const date = body?.date
+    ? String(body.date)
+    : new Date().toISOString().slice(0, 10);
   try {
     const result = await payInstallmentStore({
       id,

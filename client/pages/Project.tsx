@@ -84,9 +84,13 @@ export default function ProjectPage() {
       (i) => !i.paid && i.dueDate <= todayStr,
     );
     if (due.length) {
-      due.slice(0, 5).forEach((i) =>
-        toast.warning(`قسط مستحق ${i.amount.toLocaleString()} ج.م للوحدة ${i.unitNo}`),
-      );
+      due
+        .slice(0, 5)
+        .forEach((i) =>
+          toast.warning(
+            `قسط مستحق ${i.amount.toLocaleString()} ج.م للوحدة ${i.unitNo}`,
+          ),
+        );
     }
   }, [snapshot]);
 
@@ -186,9 +190,10 @@ export default function ProjectPage() {
           ? {
               ...prev,
               sales: [res.sale, ...prev.sales],
-              installments: res.installments && res.installments.length
-                ? [...res.installments, ...prev.installments]
-                : prev.installments,
+              installments:
+                res.installments && res.installments.length
+                  ? [...res.installments, ...prev.installments]
+                  : prev.installments,
             }
           : prev,
       );
@@ -604,10 +609,14 @@ export default function ProjectPage() {
                   {snapshot.installments.map((inst) => (
                     <tr key={inst.id} className="border-t">
                       <td className="px-3 py-2">{inst.dueDate}</td>
-                      <td className="px-3 py-2">{inst.amount.toLocaleString()}</td>
+                      <td className="px-3 py-2">
+                        {inst.amount.toLocaleString()}
+                      </td>
                       <td className="px-3 py-2">{inst.unitNo}</td>
                       <td className="px-3 py-2">{inst.buyer}</td>
-                      <td className="px-3 py-2">{inst.paid ? "مسدد" : "غير مسدد"}</td>
+                      <td className="px-3 py-2">
+                        {inst.paid ? "مسدد" : "غير مسدد"}
+                      </td>
                       <td className="px-3 py-2 text-right">
                         {!inst.paid && (
                           <button
@@ -619,16 +628,24 @@ export default function ProjectPage() {
                                   prev
                                     ? {
                                         ...prev,
-                                        installments: prev.installments.map((x) =>
-                                          x.id === inst.id ? r.installment : x,
+                                        installments: prev.installments.map(
+                                          (x) =>
+                                            x.id === inst.id
+                                              ? r.installment
+                                              : x,
                                         ),
                                       }
                                     : prev,
                                 );
                                 toast.success("تم تسجيل سداد القسط");
                               } catch (e) {
-                                const msg = e instanceof Error ? e.message : "تعذر السداد";
-                                toast.error("فشل سداد القسط", { description: msg });
+                                const msg =
+                                  e instanceof Error
+                                    ? e.message
+                                    : "تعذر السداد";
+                                toast.error("فشل سداد القسط", {
+                                  description: msg,
+                                });
                               }
                             }}
                           >

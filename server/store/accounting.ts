@@ -302,10 +302,12 @@ function sortTransactionsFallbackMovements(items: Movement[]): Movement[] {
 
 function addMonthsISO(start: string, months: number): string {
   const [y, m, d] = start.split("-").map(Number);
-  const date = new Date(y, (m - 1) + months, d || 1);
+  const date = new Date(y, m - 1 + months, d || 1);
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(Math.min(d || 1, new Date(yyyy, date.getMonth() + 1, 0).getDate())).padStart(2, "0");
+  const dd = String(
+    Math.min(d || 1, new Date(yyyy, date.getMonth() + 1, 0).getDate()),
+  ).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -336,13 +338,17 @@ function createInstallmentsForSale(params: {
     fallbackStore.installments.set(id, inst);
     list.push(inst);
   }
-  return list.sort((a, b) => (a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1));
+  return list.sort((a, b) =>
+    a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1,
+  );
 }
 
 function getProjectInstallments(projectId: string): Installment[] {
   return [...fallbackStore.installments.values()]
     .filter((i) => i.projectId === projectId)
-    .sort((a, b) => (a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1));
+    .sort((a, b) =>
+      a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1,
+    );
 }
 
 async function insertTransactionDb(
@@ -952,7 +958,9 @@ export async function createProjectSale(
     const hasPlan = Boolean(
       input && input.monthlyAmount && input.months && input.firstDueDate,
     );
-    const immediateAmount = hasPlan ? Math.max(0, Number(input.downPayment ?? 0)) : input.price;
+    const immediateAmount = hasPlan
+      ? Math.max(0, Number(input.downPayment ?? 0))
+      : input.price;
     const transaction = createTransactionFallback({
       date: input.date,
       type: "revenue",
@@ -1004,7 +1012,9 @@ export async function createProjectSale(
     const hasPlan = Boolean(
       input && input.monthlyAmount && input.months && input.firstDueDate,
     );
-    const immediateAmount = hasPlan ? Math.max(0, Number(input.downPayment ?? 0)) : input.price;
+    const immediateAmount = hasPlan
+      ? Math.max(0, Number(input.downPayment ?? 0))
+      : input.price;
     const transaction = await insertTransactionDb(
       {
         date: input.date,
@@ -1059,14 +1069,18 @@ export async function payInstallment(params: {
 }): Promise<{ installment: Installment; transaction: Transaction }> {
   const inst = fallbackStore.installments.get(params.id);
   if (!inst) throw new Error("Installment not found");
-  if (inst.paid) return { installment: inst, transaction: await createTransaction({
-    date: params.date,
-    type: "revenue",
-    description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
-    amount: inst.amount,
-    approved: params.approved,
-    createdBy: params.createdBy ?? null,
-  }) };
+  if (inst.paid)
+    return {
+      installment: inst,
+      transaction: await createTransaction({
+        date: params.date,
+        type: "revenue",
+        description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
+        amount: inst.amount,
+        approved: params.approved,
+        createdBy: params.createdBy ?? null,
+      }),
+    };
   const updated: Installment = { ...inst, paid: true, paidAt: params.date };
   fallbackStore.installments.set(updated.id, updated);
   const transaction = await createTransaction({
