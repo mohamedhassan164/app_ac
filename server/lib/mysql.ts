@@ -15,6 +15,10 @@ function hasMysqlConfig() {
   return Boolean(MYSQL_HOST && MYSQL_DATABASE && MYSQL_USER);
 }
 
+export function isMysqlConfigured() {
+  return hasMysqlConfig();
+}
+
 export function getMysqlPool() {
   if (!hasMysqlConfig()) return null;
   if (!pool) {
@@ -101,4 +105,10 @@ export async function initializeMysql() {
     })();
   }
   return initializationPromise;
+}
+
+export async function getInitializedMysqlPool() {
+  const ready = await initializeMysql();
+  if (!ready) return null;
+  return getMysqlPool();
 }
