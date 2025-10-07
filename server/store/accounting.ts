@@ -962,8 +962,13 @@ export async function createProjectSale(
   }
 }
 
-function projectCostTypeLabel(type: "construction" | "operation" | "expense") {
+function projectCostTypeLabel(
+  type: ProjectCostType,
+  customTypeLabel?: string | null,
+) {
   if (type === "construction") return "إنشاء";
   if (type === "operation") return "تشغيل";
-  return "مصروفات";
+  if (type === "expense") return "مصروفات";
+  const normalized = normalizeCustomTypeLabel(customTypeLabel);
+  return normalized ?? "أخرى";
 }
