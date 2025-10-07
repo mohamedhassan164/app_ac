@@ -571,6 +571,67 @@ export default function ProjectPage() {
           </div>
         </div>
 
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
+          <h3 className="font-semibold mb-3">خطة الأقساط</h3>
+          {snapshot.installments && snapshot.installments.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto border-collapse text-sm text-right">
+                <thead>
+                  <tr className="text-right bg-slate-50">
+                    <th className="px-3 py-2">الاستحقاق</th>
+                    <th className="px-3 py-2">المبلغ</th>
+                    <th className="px-3 py-2">الوحدة</th>
+                    <th className="px-3 py-2">المشتري</th>
+                    <th className="px-3 py-2">الحالة</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {snapshot.installments.map((inst) => (
+                    <tr key={inst.id} className="border-t">
+                      <td className="px-3 py-2">{inst.dueDate}</td>
+                      <td className="px-3 py-2">{inst.amount.toLocaleString()}</td>
+                      <td className="px-3 py-2">{inst.unitNo}</td>
+                      <td className="px-3 py-2">{inst.buyer}</td>
+                      <td className="px-3 py-2">{inst.paid ? "مسدد" : "غير مسدد"}</td>
+                      <td className="px-3 py-2 text-right">
+                        {!inst.paid && (
+                          <button
+                            className="rounded-md bg-emerald-600 text-white px-3 py-1"
+                            onClick={async () => {
+                              try {
+                                const r = await payInstallment(inst.id);
+                                setSnapshot((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        installments: prev.installments.map((x) =>
+                                          x.id === inst.id ? r.installment : x,
+                                        ),
+                                      }
+                                    : prev,
+                                );
+                                toast.success("تم تسجيل سداد القسط");
+                              } catch (e) {
+                                const msg = e instanceof Error ? e.message : "تعذر السداد";
+                                toast.error("فشل سداد القسط", { description: msg });
+                              }
+                            }}
+                          >
+                            سداد
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">لا توجد أقساط مسجلة.</div>
+          )}
+        </div>
+
         <div className="rounded-lg border p-4 bg-white">
           <div className="font-semibold">ملخص</div>
           <div className="grid grid-cols-3 gap-4 mt-2 text-sm">
