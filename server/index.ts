@@ -15,6 +15,20 @@ import {
   adminListUsers,
   adminUpdateUser,
 } from "./routes/admin-users";
+import {
+  accountingSnapshotHandler,
+  approveTransactionHandler,
+  createInventoryItemHandler,
+  createProjectCostHandler,
+  createProjectHandler,
+  createProjectSaleHandler,
+  createTransactionHandler,
+  deleteInventoryItemHandler,
+  deleteTransactionHandler,
+  getProjectHandler,
+  recordInventoryIssueHandler,
+  recordInventoryReceiptHandler,
+} from "./routes/accounting";
 import { initializeMysql } from "./lib/mysql";
 
 export function createServer() {
