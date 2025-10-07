@@ -27,12 +27,14 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [newCost, setNewCost] = useState({
+  const makeNewCostState = () => ({
     type: "construction" as ProjectCost["type"],
     amount: "",
     date: today(),
     note: "",
+    customTypeLabel: "",
   });
+  const [newCost, setNewCost] = useState(makeNewCostState);
   const [savingCost, setSavingCost] = useState(false);
 
   const [newSale, setNewSale] = useState({
