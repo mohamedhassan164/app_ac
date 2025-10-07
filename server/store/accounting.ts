@@ -873,7 +873,7 @@ export async function createProjectCost(
       {
         date: input.date,
         type: "expense",
-        description: `تكلفة ${projectCostTypeLabel(input.type)} لمشروع ${input.projectName}`,
+        description: `تكلفة ${projectCostTypeLabel(input.type, customTypeLabel)} لمشروع ${input.projectName}`,
         amount: input.amount,
         approved: input.approved,
         createdBy: input.createdBy ?? null,
