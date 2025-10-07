@@ -44,9 +44,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "localforage": "^1.10.0",
+    "mysql2": "^3.11.4",
     "zod": "^3.25.76"
   },
   "devDependencies": {

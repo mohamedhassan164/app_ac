@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import type { RequestHandler } from "express";
 import { supabaseAdmin } from "../lib/supabase";
 import type {
   ApiError,
@@ -27,7 +28,7 @@ export const adminListUsers: RequestHandler = async (req, res) => {
   if (!manager) return res.status(403).json({ error: "Forbidden" } as ApiError);
 
   if (!supabaseAdmin) {
-    const users = listUsersFallback();
+    const users = await listUsersFallback();
     return res.json({ users } as UsersListResponse);
   }
 
@@ -90,15 +91,28 @@ export const adminCreateUser: RequestHandler = async (req, res) => {
   }
 
   if (!supabaseAdmin) {
-    const user = createUserFallback({
-      username,
-      name,
-      email,
-      role,
-      password,
-      active,
-    });
-    return res.status(201).json(user);
+    try {
+      const user = await createUserFallback({
+        username,
+        name,
+        email,
+        role,
+        password,
+        active,
+      });
+      return res.status(201).json(user);
+    } catch (error: any) {
+      const code =
+        typeof error === "object" && error ? (error as any).code : undefined;
+      if (code === "ER_DUP_ENTRY") {
+        return res
+          .status(409)
+          .json({ error: "Username or email already exists" } as ApiError);
+      }
+      return res
+        .status(500)
+        .json({ error: "Failed to create user" } as ApiError);
+    }
   }
 
   const { data: created, error: cErr } =
@@ -153,10 +167,23 @@ export const adminUpdateUser: RequestHandler = async (req, res) => {
   >(req.body);
 
   if (!supabaseAdmin) {
-    const updated = updateUserFallback(id, patch as any);
-    if (!updated)
-      return res.status(404).json({ error: "User not found" } as ApiError);
-    return res.json(updated);
+    try {
+      const updated = await updateUserFallback(id, patch as any);
+      if (!updated)
+        return res.status(404).json({ error: "User not found" } as ApiError);
+      return res.json(updated);
+    } catch (error: any) {
+      const code =
+        typeof error === "object" && error ? (error as any).code : undefined;
+      if (code === "ER_DUP_ENTRY") {
+        return res
+          .status(409)
+          .json({ error: "Username or email already exists" } as ApiError);
+      }
+      return res
+        .status(500)
+        .json({ error: "Failed to update user" } as ApiError);
+    }
   }
 
   if (patch.password || patch.email) {
@@ -208,7 +235,7 @@ export const adminDeleteUser: RequestHandler = async (req, res) => {
   const id = req.params.id;
 
   if (!supabaseAdmin) {
-    const ok = deleteUserFallback(id);
+    const ok = await deleteUserFallback(id);
     if (!ok)
       return res.status(404).json({ error: "User not found" } as ApiError);
     return res.status(204).end();

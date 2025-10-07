@@ -15,9 +15,12 @@ import {
   adminListUsers,
   adminUpdateUser,
 } from "./routes/admin-users";
+import { initializeMysql } from "./lib/mysql";
 
 export function createServer() {
   const app = express();
+
+  void initializeMysql();
 
   // Middleware
   app.use(cors());

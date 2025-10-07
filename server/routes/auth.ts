@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
-import { authenticate, getUserByToken, invalidateToken } from "../store/auth";
+import type { RequestHandler } from "express";
+import { authenticate, invalidateToken } from "../store/auth";
 import type {
   AuthLoginRequest,
   AuthLoginResponse,
@@ -7,13 +8,13 @@ import type {
   ApiError,
 } from "@shared/api";
 
-export const loginHandler: RequestHandler = (req, res) => {
+export const loginHandler: RequestHandler = async (req, res) => {
   const { username, password } = req.body as AuthLoginRequest;
   if (!username || !password) {
     res.status(400).json({ error: "Missing credentials" } as ApiError);
     return;
   }
-  const result = authenticate(username, password);
+  const result = await authenticate(username, password);
   if (!result) {
     res
       .status(401)
