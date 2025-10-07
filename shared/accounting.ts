@@ -40,10 +40,17 @@ export interface Project {
   createdAt: string;
 }
 
+export type ProjectCostType =
+  | "construction"
+  | "operation"
+  | "expense"
+  | "other";
+
 export interface ProjectCost {
   id: string;
   projectId: string;
-  type: "construction" | "operation" | "expense";
+  type: ProjectCostType;
+  customTypeLabel?: string | null;
   amount: number;
   date: string;
   note: string;
@@ -130,7 +137,8 @@ export interface ProjectCreateInput {
 export interface ProjectCostCreateInput {
   projectId: string;
   projectName: string;
-  type: "construction" | "operation" | "expense";
+  type: ProjectCostType;
+  customTypeLabel?: string | null;
   amount: number;
   date: string;
   note: string;

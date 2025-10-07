@@ -11,6 +11,7 @@ import {
   type Project,
   type ProjectCost,
   type ProjectCostCreateInput,
+  type ProjectCostType,
   type ProjectCostCreateResult,
   type ProjectCreateInput,
   type ProjectSale,
@@ -66,7 +67,7 @@ interface ProjectRow extends RowDataPacket {
 interface ProjectCostRow extends RowDataPacket {
   id: string;
   project_id: string;
-  type: "construction" | "operation" | "expense";
+  type: ProjectCostType;
   amount: number | string;
   date: string | Date;
   note: string | null;
@@ -94,6 +95,51 @@ const fallbackStore = {
   costs: new Map<string, ProjectCost>(),
   sales: new Map<string, ProjectSale>(),
 };
+
+type ProjectCostNoteData = {
+  note: string;
+  customTypeLabel: string | null;
+};
+
+function normalizeCustomTypeLabel(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function parseProjectCostNote(raw: string | null): ProjectCostNoteData {
+  if (!raw) {
+    return { note: "", customTypeLabel: null };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      const data = parsed as Record<string, unknown>;
+      return {
+        note: typeof data.note === "string" ? data.note : "",
+        customTypeLabel: normalizeCustomTypeLabel(data.customTypeLabel),
+      };
+    }
+  } catch {
+    // not JSON, treat as plain note
+  }
+  return { note: raw, customTypeLabel: null };
+}
+
+function serializeProjectCostNote(
+  note: string,
+  customTypeLabel: string | null,
+): string | null {
+  const normalizedLabel = normalizeCustomTypeLabel(customTypeLabel);
+  const noteValue = typeof note === "string" ? note : "";
+  if (!normalizedLabel) {
+    return noteValue ? noteValue : null;
+  }
+  return JSON.stringify({
+    note: noteValue,
+    customTypeLabel: normalizedLabel,
+  });
+}
 
 function asNumber(value: unknown): number {
   if (value === null || value === undefined) return 0;
@@ -180,13 +226,15 @@ function mapProjectRow(row: ProjectRow): Project {
 }
 
 function mapProjectCostRow(row: ProjectCostRow): ProjectCost {
+  const noteData = parseProjectCostNote(row.note ?? null);
   return {
     id: row.id,
     projectId: row.project_id,
     type: row.type,
+    customTypeLabel: noteData.customTypeLabel,
     amount: asNumber(row.amount),
     date: formatDate(row.date),
-    note: row.note ?? "",
+    note: noteData.note,
   };
 }
 
@@ -572,7 +620,7 @@ export async function recordInventoryIssue(
     const transaction = createTransactionFallback({
       date: input.date,
       type: "expense",
-      description: `صرف ${item.name} لمشروع ${input.project} (${input.qty} ${item.unit} × ${input.unitPrice})`,
+      description: `صرف ${item.name} لمشر��ع ${input.project} (${input.qty} ${item.unit} × ${input.unitPrice})`,
       amount: movement.total,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
@@ -775,19 +823,22 @@ export async function createProjectCost(
 ): Promise<ProjectCostCreateResult> {
   const pool = await getInitializedMysqlPool();
   if (!pool) {
+    const customTypeLabel = normalizeCustomTypeLabel(input.customTypeLabel);
+    const note = typeof input.note === "string" ? input.note : "";
     const cost: ProjectCost = {
       id: crypto.randomUUID(),
       projectId: input.projectId,
       type: input.type,
+      customTypeLabel,
       amount: input.amount,
       date: input.date,
-      note: input.note,
+      note,
     };
     fallbackStore.costs.set(cost.id, cost);
     const transaction = createTransactionFallback({
       date: input.date,
       type: "expense",
-      description: `تكلفة ${projectCostTypeLabel(input.type)} لمشروع ${input.projectName}`,
+      description: `تكلفة ${projectCostTypeLabel(input.type, customTypeLabel)} لمشروع ${input.projectName}`,
       amount: input.amount,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
@@ -797,18 +848,14 @@ export async function createProjectCost(
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+    const customTypeLabel = normalizeCustomTypeLabel(input.customTypeLabel);
+    const note = typeof input.note === "string" ? input.note : "";
+    const storedNote = serializeProjectCostNote(note, customTypeLabel);
     const id = crypto.randomUUID();
     await conn.query(
       `INSERT INTO project_costs (id, project_id, type, amount, date, note)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        input.projectId,
-        input.type,
-        input.amount,
-        input.date,
-        input.note || null,
-      ],
+      [id, input.projectId, input.type, input.amount, input.date, storedNote],
     );
     const [rows] = await conn.query<ProjectCostRow[]>(
       `SELECT id, project_id, type, amount, date, note, created_at
@@ -819,7 +866,7 @@ export async function createProjectCost(
       {
         date: input.date,
         type: "expense",
-        description: `تكلفة ${projectCostTypeLabel(input.type)} لمشروع ${input.projectName}`,
+        description: `تكلفة ${projectCostTypeLabel(input.type, customTypeLabel)} لمشروع ${input.projectName}`,
         amount: input.amount,
         approved: input.approved,
         createdBy: input.createdBy ?? null,
@@ -908,8 +955,13 @@ export async function createProjectSale(
   }
 }
 
-function projectCostTypeLabel(type: "construction" | "operation" | "expense") {
+function projectCostTypeLabel(
+  type: ProjectCostType,
+  customTypeLabel?: string | null,
+) {
   if (type === "construction") return "إنشاء";
   if (type === "operation") return "تشغيل";
-  return "مصروفات";
+  if (type === "expense") return "مصروفات";
+  const normalized = normalizeCustomTypeLabel(customTypeLabel);
+  return normalized ?? "أخرى";
 }

@@ -373,16 +373,37 @@ export const createProjectCostHandler: RequestHandler = async (req, res) => {
     respondError(res, 400, "Missing required fields");
     return;
   }
+  const allowedCostTypes = new Set([
+    "construction",
+    "operation",
+    "expense",
+    "other",
+  ]);
+  if (!allowedCostTypes.has(body.type as string)) {
+    respondError(res, 400, "Invalid cost type");
+    return;
+  }
   const amount = ensureNumber(body.amount);
   if (!Number.isFinite(amount) || amount <= 0) {
     respondError(res, 400, "Invalid amount");
     return;
   }
+  const customTypeLabelRaw =
+    typeof body.customTypeLabel === "string" ? body.customTypeLabel : null;
+  if (
+    body.type === "other" &&
+    (!customTypeLabelRaw || !customTypeLabelRaw.trim())
+  ) {
+    respondError(res, 400, "Custom type label required");
+    return;
+  }
+  const customTypeLabel = body.type === "other" ? customTypeLabelRaw : null;
   try {
     const result = await createProjectCostStore({
       projectId: String(projectId),
       projectName: String(body.projectName),
       type: body.type,
+      customTypeLabel,
       amount,
       date: String(body.date),
       note: body.note ?? "",

@@ -27,12 +27,14 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [newCost, setNewCost] = useState({
+  const makeNewCostState = () => ({
     type: "construction" as ProjectCost["type"],
     amount: "",
     date: today(),
     note: "",
+    customTypeLabel: "",
   });
+  const [newCost, setNewCost] = useState(makeNewCostState);
   const [savingCost, setSavingCost] = useState(false);
 
   const [newSale, setNewSale] = useState({
@@ -82,12 +84,18 @@ export default function ProjectPage() {
     const amount = Number(newCost.amount);
     if (!Number.isFinite(amount) || amount <= 0)
       return toast.error("قيمة غير صحيحة");
+    const customTypeLabel =
+      newCost.type === "other" ? newCost.customTypeLabel.trim() : undefined;
+    if (newCost.type === "other" && !customTypeLabel) {
+      return toast.error("يرجى إدخال نوع التكلفة");
+    }
     try {
       setSavingCost(true);
       const res = await createProjectCost({
         projectId: id,
         projectName: snapshot.project.name,
         type: newCost.type,
+        customTypeLabel,
         amount,
         date: newCost.date,
         note: newCost.note,
@@ -97,7 +105,7 @@ export default function ProjectPage() {
       setSnapshot((prev) =>
         prev ? { ...prev, costs: [res.cost, ...prev.costs] } : prev,
       );
-      setNewCost({ type: "construction", amount: "", date: today(), note: "" });
+      setNewCost(makeNewCostState());
       toast.success("تم تسجيل التكلفة");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "تعذر التسجيل";
@@ -205,6 +213,16 @@ export default function ProjectPage() {
     );
   }
 
+  const getCostTypeLabel = (cost: ProjectCost) => {
+    if (cost.customTypeLabel && cost.customTypeLabel.trim()) {
+      return cost.customTypeLabel;
+    }
+    if (cost.type === "construction") return "إنشاء";
+    if (cost.type === "operation") return "تشغيل";
+    if (cost.type === "expense") return "مصروفات";
+    return "أخرى";
+  };
+
   const p = snapshot.project;
 
   return (
@@ -240,16 +258,20 @@ export default function ProjectPage() {
                 <select
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                   value={newCost.type}
-                  onChange={(e) =>
-                    setNewCost({
-                      ...newCost,
-                      type: e.target.value as ProjectCost["type"],
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value as ProjectCost["type"];
+                    setNewCost((prev) => ({
+                      ...prev,
+                      type: value,
+                      customTypeLabel:
+                        value === "other" ? prev.customTypeLabel : "",
+                    }));
+                  }}
                 >
                   <option value="construction">إنشاء</option>
                   <option value="operation">تشغيل</option>
                   <option value="expense">مصروفات</option>
+                  <option value="other">أخرى</option>
                 </select>
                 <input
                   className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
@@ -260,6 +282,19 @@ export default function ProjectPage() {
                   }
                 />
               </div>
+              {newCost.type === "other" ? (
+                <input
+                  className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                  placeholder="حدد نوع التكلفة"
+                  value={newCost.customTypeLabel}
+                  onChange={(e) =>
+                    setNewCost((prev) => ({
+                      ...prev,
+                      customTypeLabel: e.target.value,
+                    }))
+                  }
+                />
+              ) : null}
               <input
                 type="date"
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
@@ -285,14 +320,7 @@ export default function ProjectPage() {
                   {savingCost ? "جاري التسجيل..." : "تسجيل التكلفة"}
                 </button>
                 <button
-                  onClick={() =>
-                    setNewCost({
-                      type: "construction",
-                      amount: "",
-                      date: today(),
-                      note: "",
-                    })
-                  }
+                  onClick={() => setNewCost(makeNewCostState())}
                   className="rounded-md border px-3 py-2 bg-white"
                 >
                   إعادة تعيين
@@ -414,13 +442,7 @@ export default function ProjectPage() {
                   {snapshot.costs.map((c) => (
                     <tr key={c.id} className="border-t">
                       <td className="px-3 py-2">{c.date}</td>
-                      <td className="px-3 py-2">
-                        {c.type === "construction"
-                          ? "إنشاء"
-                          : c.type === "operation"
-                            ? "تشغيل"
-                            : "مصروفات"}
-                      </td>
+                      <td className="px-3 py-2">{getCostTypeLabel(c)}</td>
                       <td className="px-3 py-2">{c.amount.toLocaleString()}</td>
                       <td className="px-3 py-2">{c.note}</td>
                     </tr>
