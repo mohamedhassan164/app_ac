@@ -208,10 +208,20 @@ export default function ProjectPage() {
   if (error || !snapshot) {
     return (
       <Layout>
-        <div className="p-6">تعذر العثور على المشروع</div>
+        <div className="p-6">تعذر العثو�� على المشروع</div>
       </Layout>
     );
   }
+
+  const getCostTypeLabel = (cost: ProjectCost) => {
+    if (cost.customTypeLabel && cost.customTypeLabel.trim()) {
+      return cost.customTypeLabel;
+    }
+    if (cost.type === "construction") return "إنشاء";
+    if (cost.type === "operation") return "تشغيل";
+    if (cost.type === "expense") return "مصروفات";
+    return "أخرى";
+  };
 
   const p = snapshot.project;
 
@@ -319,7 +329,7 @@ export default function ProjectPage() {
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
-            <h3 className="font-semibold mb-3">ت��جيل بيع وإصدار فاتورة</h3>
+            <h3 className="font-semibold mb-3">تسجيل بيع وإصدار فاتورة</h3>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
                 <input
