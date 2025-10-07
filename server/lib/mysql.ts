@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
+import crypto from "node:crypto";
 import mysql, { type RowDataPacket } from "mysql2/promise";
-import { hash } from "bcryptjs";
+import bcrypt from "bcryptjs";
 
 const MYSQL_HOST = process.env.MYSQL_HOST;
 const MYSQL_PORT = Number(process.env.MYSQL_PORT ?? "3306");
@@ -71,7 +72,7 @@ async function seedManager(pool: mysql.Pool) {
   if (Array.isArray(rows) && rows.length > 0) return;
 
   const id = crypto.randomUUID();
-  const passwordHash = await hash("password123", 10);
+  const passwordHash = await bcrypt.hash("password123", 10);
   await pool.query(
     `INSERT INTO users (id, username, name, email, role, active, password_hash)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
