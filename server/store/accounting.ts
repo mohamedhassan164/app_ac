@@ -690,6 +690,82 @@ export async function getProjectById(id: string): Promise<Project | null> {
   return mapProjectRow(rows[0]);
 }
 
+export async function getProjectSnapshot(
+  id: string,
+): Promise<ProjectSnapshot | null> {
+  const project = await getProjectById(id);
+  if (!project) return null;
+  const pool = await getInitializedMysqlPool();
+  if (!pool) {
+    const costs = [...fallbackStore.costs.values()]
+      .filter((c) => c.projectId === id)
+      .sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
+    const sales = [...fallbackStore.sales.values()]
+      .filter((s) => s.projectId === id)
+      .sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
+    return { project, costs, sales };
+  }
+  const [costRows] = await pool.query<ProjectCostRow[]>(
+    `SELECT id, project_id, type, amount, date, note, created_at
+     FROM project_costs
+     WHERE project_id = ?
+     ORDER BY date DESC, created_at DESC`,
+    [id],
+  );
+  const [saleRows] = await pool.query<ProjectSaleRow[]>(
+    `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+     FROM project_sales
+     WHERE project_id = ?
+     ORDER BY date DESC, created_at DESC`,
+    [id],
+  );
+  return {
+    project,
+    costs: costRows.map(mapProjectCostRow),
+    sales: saleRows.map(mapProjectSaleRow),
+  };
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  const pool = await getInitializedMysqlPool();
+  if (!pool) {
+    if (!fallbackStore.projects.delete(id)) {
+      throw new Error("Project not found");
+    }
+    for (const cost of [...fallbackStore.costs.values()]) {
+      if (cost.projectId === id) {
+        fallbackStore.costs.delete(cost.id);
+      }
+    }
+    for (const sale of [...fallbackStore.sales.values()]) {
+      if (sale.projectId === id) {
+        fallbackStore.sales.delete(sale.id);
+      }
+    }
+    return;
+  }
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [projects] = await conn.query<ProjectRow[]>(
+      `SELECT id FROM projects WHERE id = ? LIMIT 1`,
+      [id],
+    );
+    if (!projects.length) {
+      throw new Error("Project not found");
+    }
+    await conn.query(`DELETE FROM project_sales WHERE project_id = ?`, [id]);
+    await conn.query(`DELETE FROM project_costs WHERE project_id = ?`, [id]);
+    await conn.query(`DELETE FROM projects WHERE id = ?`, [id]);
+    await conn.commit();
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+}
+
 export async function createProjectCost(
   input: ProjectCostCreateInput,
 ): Promise<ProjectCostCreateResult> {
