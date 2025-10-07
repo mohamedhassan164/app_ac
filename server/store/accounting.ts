@@ -866,8 +866,8 @@ export async function createProjectSale(
     await conn.beginTransaction();
     const id = crypto.randomUUID();
     await conn.query(
-      `INSERT INTO project_sales (id, project_id, unit_no, buyer, price, date, terms)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO project_sales (id, project_id, unit_no, buyer, price, date, terms, area, payment_method)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         input.projectId,
@@ -876,10 +876,12 @@ export async function createProjectSale(
         input.price,
         input.date,
         input.terms || null,
+        input.area || null,
+        input.paymentMethod || null,
       ],
     );
     const [rows] = await conn.query<ProjectSaleRow[]>(
-      `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+      `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
        FROM project_sales WHERE id = ? LIMIT 1`,
       [id],
     );
