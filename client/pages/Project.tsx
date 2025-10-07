@@ -432,6 +432,43 @@ export default function ProjectPage() {
                 </select>
               </div>
 
+              {newSale.paymentMethod === "تقسيط" && (
+                <div className="grid gap-3 md:grid-cols-2">
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="المقدم (اختياري)"
+                    value={newSale.downPayment}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, downPayment: e.target.value })
+                    }
+                  />
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="قيمة القسط الشهري"
+                    value={newSale.monthlyAmount}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, monthlyAmount: e.target.value })
+                    }
+                  />
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="عدد الأشهر"
+                    value={newSale.months}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, months: e.target.value })
+                    }
+                  />
+                  <input
+                    type="date"
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    value={newSale.firstDueDate}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, firstDueDate: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
               <input
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 placeholder="شروط التعاقد (اختياري)"
