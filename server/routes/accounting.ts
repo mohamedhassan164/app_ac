@@ -32,6 +32,7 @@ import {
   getProjectSnapshot as getProjectSnapshotStore,
   recordInventoryIssue as recordInventoryIssueStore,
   recordInventoryReceipt as recordInventoryReceiptStore,
+  payInstallment as payInstallmentStore,
 } from "../store/accounting";
 import { getUserByTokenAsync } from "../store/auth";
 import { parseBody } from "../utils/parse-body";
@@ -442,6 +443,11 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
     respondError(res, 400, "Invalid price");
     return;
   }
+  const downPayment =
+    body.downPayment == null ? null : ensureNumber(body.downPayment);
+  const monthlyAmount =
+    body.monthlyAmount == null ? null : ensureNumber(body.monthlyAmount);
+  const months = body.months == null ? null : ensureNumber(body.months);
   try {
     const result = await createProjectSaleStore({
       projectId: String(projectId),
@@ -453,11 +459,42 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
       terms: body.terms ?? null,
       area: body.area ?? null,
       paymentMethod: body.paymentMethod ?? null,
+      downPayment,
+      monthlyAmount,
+      months,
+      firstDueDate: body.firstDueDate ?? null,
       approved: canApprove(user) && Boolean(body.approved),
       createdBy: user.id,
     });
     res.status(201).json(result as ProjectSaleCreateResult);
   } catch (error: any) {
     respondError(res, 400, error?.message || "Failed to create sale");
+  }
+};
+
+export const payInstallmentHandler: RequestHandler = async (req, res) => {
+  const user = await requireAuth(req, res);
+  if (!user) return;
+  if (!canApprove(user)) {
+    respondError(res, 403, "Forbidden");
+    return;
+  }
+  const id = req.params.id;
+  const body = parseBody<Record<string, unknown>>(req.body) as {
+    date?: string;
+  };
+  const date = body?.date
+    ? String(body.date)
+    : new Date().toISOString().slice(0, 10);
+  try {
+    const result = await payInstallmentStore({
+      id,
+      date,
+      approved: canApprove(user),
+      createdBy: user.id,
+    });
+    res.status(200).json(result);
+  } catch (error: any) {
+    respondError(res, 400, error?.message || "Failed to pay installment");
   }
 };

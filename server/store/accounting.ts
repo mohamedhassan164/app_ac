@@ -19,6 +19,7 @@ import {
   type ProjectSaleCreateResult,
   type ProjectSnapshot,
   type Transaction,
+  type Installment,
   type TransactionCreateInput,
 } from "@shared/accounting";
 import { getInitializedMysqlPool } from "../lib/mysql";
@@ -94,6 +95,7 @@ const fallbackStore = {
   projects: new Map<string, Project>(),
   costs: new Map<string, ProjectCost>(),
   sales: new Map<string, ProjectSale>(),
+  installments: new Map<string, Installment>(),
 };
 
 type ProjectCostNoteData = {
@@ -296,6 +298,57 @@ function sortTransactionsFallbackMovements(items: Movement[]): Movement[] {
   return [...items].sort((a, b) =>
     a.date === b.date ? 0 : a.date > b.date ? -1 : 1,
   );
+}
+
+function addMonthsISO(start: string, months: number): string {
+  const [y, m, d] = start.split("-").map(Number);
+  const date = new Date(y, m - 1 + months, d || 1);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(
+    Math.min(d || 1, new Date(yyyy, date.getMonth() + 1, 0).getDate()),
+  ).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function createInstallmentsForSale(params: {
+  projectId: string;
+  saleId: string;
+  unitNo: string;
+  buyer: string;
+  monthlyAmount: number;
+  months: number;
+  firstDueDate: string;
+}): Installment[] {
+  const list: Installment[] = [];
+  for (let i = 0; i < params.months; i++) {
+    const id = crypto.randomUUID();
+    const dueDate = addMonthsISO(params.firstDueDate, i);
+    const inst: Installment = {
+      id,
+      projectId: params.projectId,
+      saleId: params.saleId,
+      unitNo: params.unitNo,
+      buyer: params.buyer,
+      amount: params.monthlyAmount,
+      dueDate,
+      paid: false,
+      paidAt: null,
+    };
+    fallbackStore.installments.set(id, inst);
+    list.push(inst);
+  }
+  return list.sort((a, b) =>
+    a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1,
+  );
+}
+
+function getProjectInstallments(projectId: string): Installment[] {
+  return [...fallbackStore.installments.values()]
+    .filter((i) => i.projectId === projectId)
+    .sort((a, b) =>
+      a.dueDate === b.dueDate ? 0 : a.dueDate < b.dueDate ? -1 : 1,
+    );
 }
 
 async function insertTransactionDb(
@@ -755,7 +808,8 @@ export async function getProjectSnapshot(
     const sales = [...fallbackStore.sales.values()]
       .filter((s) => s.projectId === id)
       .sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
-    return { project, costs, sales };
+    const installments = getProjectInstallments(id);
+    return { project, costs, sales, installments };
   }
   const [costRows] = await pool.query<ProjectCostRow[]>(
     `SELECT id, project_id, type, amount, date, note, created_at
@@ -775,6 +829,7 @@ export async function getProjectSnapshot(
     project,
     costs: costRows.map(mapProjectCostRow),
     sales: saleRows.map(mapProjectSaleRow),
+    installments: getProjectInstallments(id),
   };
 }
 
@@ -900,15 +955,35 @@ export async function createProjectSale(
       paymentMethod: input.paymentMethod ?? null,
     };
     fallbackStore.sales.set(sale.id, sale);
+    const hasPlan = Boolean(
+      input && input.monthlyAmount && input.months && input.firstDueDate,
+    );
+    const immediateAmount = hasPlan
+      ? Math.max(0, Number(input.downPayment ?? 0))
+      : input.price;
     const transaction = createTransactionFallback({
       date: input.date,
       type: "revenue",
-      description: `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
-      amount: input.price,
+      description: hasPlan
+        ? `بيع بالتقسيط لوحدة ${input.unitNo} من مشروع ${input.projectName} (مقدم)`
+        : `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
+      amount: immediateAmount,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
     });
-    return { sale, transaction };
+    let installments: Installment[] | undefined;
+    if (hasPlan) {
+      installments = createInstallmentsForSale({
+        projectId: input.projectId,
+        saleId: sale.id,
+        unitNo: input.unitNo,
+        buyer: input.buyer,
+        monthlyAmount: Number(input.monthlyAmount),
+        months: Number(input.months),
+        firstDueDate: String(input.firstDueDate),
+      });
+    }
+    return { sale, transaction, installments };
   }
   const conn = await pool.getConnection();
   try {
@@ -934,19 +1009,39 @@ export async function createProjectSale(
        FROM project_sales WHERE id = ? LIMIT 1`,
       [id],
     );
+    const hasPlan = Boolean(
+      input && input.monthlyAmount && input.months && input.firstDueDate,
+    );
+    const immediateAmount = hasPlan
+      ? Math.max(0, Number(input.downPayment ?? 0))
+      : input.price;
     const transaction = await insertTransactionDb(
       {
         date: input.date,
         type: "revenue",
-        description: `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
-        amount: input.price,
+        description: hasPlan
+          ? `بيع بالتقسيط لوحدة ${input.unitNo} من مشروع ${input.projectName} (مقدم)`
+          : `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
+        amount: immediateAmount,
         approved: input.approved,
         createdBy: input.createdBy ?? null,
       },
       conn,
     );
+    let installments: Installment[] | undefined;
+    if (hasPlan) {
+      installments = createInstallmentsForSale({
+        projectId: input.projectId,
+        saleId: id,
+        unitNo: input.unitNo,
+        buyer: input.buyer,
+        monthlyAmount: Number(input.monthlyAmount),
+        months: Number(input.months),
+        firstDueDate: String(input.firstDueDate),
+      });
+    }
     await conn.commit();
-    return { sale: mapProjectSaleRow(rows[0]), transaction };
+    return { sale: mapProjectSaleRow(rows[0]), transaction, installments };
   } catch (error) {
     await conn.rollback();
     throw error;
@@ -964,4 +1059,37 @@ function projectCostTypeLabel(
   if (type === "expense") return "مصروفات";
   const normalized = normalizeCustomTypeLabel(customTypeLabel);
   return normalized ?? "أخرى";
+}
+
+export async function payInstallment(params: {
+  id: string;
+  date: string;
+  approved: boolean;
+  createdBy?: string | null;
+}): Promise<{ installment: Installment; transaction: Transaction }> {
+  const inst = fallbackStore.installments.get(params.id);
+  if (!inst) throw new Error("Installment not found");
+  if (inst.paid)
+    return {
+      installment: inst,
+      transaction: await createTransaction({
+        date: params.date,
+        type: "revenue",
+        description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
+        amount: inst.amount,
+        approved: params.approved,
+        createdBy: params.createdBy ?? null,
+      }),
+    };
+  const updated: Installment = { ...inst, paid: true, paidAt: params.date };
+  fallbackStore.installments.set(updated.id, updated);
+  const transaction = await createTransaction({
+    date: params.date,
+    type: "revenue",
+    description: `سداد قسط وحدة ${inst.unitNo} من ${inst.buyer}`,
+    amount: inst.amount,
+    approved: params.approved,
+    createdBy: params.createdBy ?? null,
+  });
+  return { installment: updated, transaction };
 }

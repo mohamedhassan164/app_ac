@@ -30,6 +30,7 @@ import {
   getProjectHandler,
   recordInventoryIssueHandler,
   recordInventoryReceiptHandler,
+  payInstallmentHandler,
 } from "./routes/accounting";
 import { initializeMysql } from "./lib/mysql";
 
@@ -88,6 +89,7 @@ export function createServer() {
   app.delete("/api/accounting/projects/:id", deleteProjectHandler);
   app.post("/api/accounting/projects/:id/costs", createProjectCostHandler);
   app.post("/api/accounting/projects/:id/sales", createProjectSaleHandler);
+  app.post("/api/accounting/installments/:id/pay", payInstallmentHandler);
 
   return app;
 }

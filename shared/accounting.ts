@@ -56,6 +56,18 @@ export interface ProjectCost {
   note: string;
 }
 
+export interface Installment {
+  id: string;
+  projectId: string;
+  saleId: string;
+  unitNo: string;
+  buyer: string;
+  amount: number;
+  dueDate: string;
+  paid: boolean;
+  paidAt?: string | null;
+}
+
 export interface ProjectSale {
   id: string;
   projectId: string;
@@ -72,6 +84,7 @@ export interface ProjectSnapshot {
   project: Project;
   costs: ProjectCost[];
   sales: ProjectSale[];
+  installments: Installment[];
 }
 
 export interface AccountingSnapshot {
@@ -161,6 +174,10 @@ export interface ProjectSaleCreateInput {
   terms?: string | null;
   area?: string | null;
   paymentMethod?: string | null;
+  downPayment?: number | null;
+  monthlyAmount?: number | null;
+  months?: number | null;
+  firstDueDate?: string | null;
   approved: boolean;
   createdBy?: string | null;
 }
@@ -168,4 +185,5 @@ export interface ProjectSaleCreateInput {
 export interface ProjectSaleCreateResult {
   sale: ProjectSale;
   transaction: Transaction;
+  installments?: Installment[];
 }

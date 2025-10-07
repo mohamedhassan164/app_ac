@@ -8,6 +8,7 @@ import {
   createProjectSale,
   deleteProject,
   loadProjectSnapshot,
+  payInstallment,
 } from "@/services/accounting";
 import type {
   ProjectCost,
@@ -45,6 +46,10 @@ export default function ProjectPage() {
     terms: "",
     area: "",
     paymentMethod: "كاش",
+    downPayment: "",
+    monthlyAmount: "",
+    months: "",
+    firstDueDate: today(),
   });
   const [savingSale, setSavingSale] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -71,6 +76,23 @@ export default function ProjectPage() {
       alive = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (!snapshot) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const due = (snapshot.installments || []).filter(
+      (i) => !i.paid && i.dueDate <= todayStr,
+    );
+    if (due.length) {
+      due
+        .slice(0, 5)
+        .forEach((i) =>
+          toast.warning(
+            `قسط مستحق ${i.amount.toLocaleString()} ج.م للوحدة ${i.unitNo}`,
+          ),
+        );
+    }
+  }, [snapshot]);
 
   const totals = useMemo(() => {
     const costs = snapshot?.costs.reduce((a, b) => a + b.amount, 0) ?? 0;
@@ -118,10 +140,32 @@ export default function ProjectPage() {
   const addSale = async () => {
     if (!snapshot || !id) return;
     if (!newSale.unitNo || !newSale.buyer || !newSale.price)
-      return toast.error("��كمل بيانات البيع");
+      return toast.error("أكمل بيانات البيع");
     const price = Number(newSale.price);
     if (!Number.isFinite(price) || price <= 0)
       return toast.error("قيمة غير صحيحة");
+
+    const isInstallment = newSale.paymentMethod === "تقسيط";
+    let downPaymentNum: number | null = null;
+    let monthlyAmountNum: number | null = null;
+    let monthsNum: number | null = null;
+    let firstDue = null as string | null;
+    if (isInstallment) {
+      monthlyAmountNum = Number(newSale.monthlyAmount);
+      monthsNum = Number(newSale.months);
+      downPaymentNum = newSale.downPayment ? Number(newSale.downPayment) : 0;
+      firstDue = newSale.firstDueDate;
+      if (
+        !Number.isFinite(monthlyAmountNum) ||
+        monthlyAmountNum! <= 0 ||
+        !Number.isFinite(monthsNum) ||
+        monthsNum! <= 0 ||
+        !firstDue
+      ) {
+        return toast.error("أكمل بيانات التقسيط (المقدم اختياري)");
+      }
+    }
+
     try {
       setSavingSale(true);
       const res = await createProjectSale({
@@ -134,11 +178,24 @@ export default function ProjectPage() {
         terms: newSale.terms || null,
         area: newSale.area || null,
         paymentMethod: newSale.paymentMethod || null,
+        downPayment: isInstallment ? downPaymentNum : null,
+        monthlyAmount: isInstallment ? monthlyAmountNum : null,
+        months: isInstallment ? monthsNum : null,
+        firstDueDate: isInstallment ? firstDue : null,
         approved: canManage,
         createdBy: user?.id ?? null,
       });
       setSnapshot((prev) =>
-        prev ? { ...prev, sales: [res.sale, ...prev.sales] } : prev,
+        prev
+          ? {
+              ...prev,
+              sales: [res.sale, ...prev.sales],
+              installments:
+                res.installments && res.installments.length
+                  ? [...res.installments, ...prev.installments]
+                  : prev.installments,
+            }
+          : prev,
       );
       setNewSale({
         unitNo: "",
@@ -148,6 +205,10 @@ export default function ProjectPage() {
         terms: "",
         area: "",
         paymentMethod: "كاش",
+        downPayment: "",
+        monthlyAmount: "",
+        months: "",
+        firstDueDate: today(),
       });
       toast.success("تم تسجيل البيع وإصدار الفاتورة");
       printInvoice(res.sale.id);
@@ -390,6 +451,43 @@ export default function ProjectPage() {
                 </select>
               </div>
 
+              {newSale.paymentMethod === "تقسيط" && (
+                <div className="grid gap-3 md:grid-cols-2">
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="المقدم (اختياري)"
+                    value={newSale.downPayment}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, downPayment: e.target.value })
+                    }
+                  />
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="قيمة القسط الشهري"
+                    value={newSale.monthlyAmount}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, monthlyAmount: e.target.value })
+                    }
+                  />
+                  <input
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    placeholder="عدد الأشهر"
+                    value={newSale.months}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, months: e.target.value })
+                    }
+                  />
+                  <input
+                    type="date"
+                    className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                    value={newSale.firstDueDate}
+                    onChange={(e) =>
+                      setNewSale({ ...newSale, firstDueDate: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
               <input
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 placeholder="شروط التعاقد (اختياري)"
@@ -429,9 +527,9 @@ export default function ProjectPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
             <h3 className="font-semibold mb-3">التكاليف</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+              <table className="w-full table-auto border-collapse text-sm text-right">
                 <thead>
-                  <tr className="text-left bg-slate-50">
+                  <tr className="text-right bg-slate-50">
                     <th className="px-3 py-2">التاريخ</th>
                     <th className="px-3 py-2">النوع</th>
                     <th className="px-3 py-2">المبلغ</th>
@@ -455,9 +553,9 @@ export default function ProjectPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
             <h3 className="font-semibold mb-3">المبيعات</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+              <table className="w-full table-auto border-collapse text-sm text-right">
                 <thead>
-                  <tr className="text-left bg-slate-50">
+                  <tr className="text-right bg-slate-50">
                     <th className="px-3 py-2">التاريخ</th>
                     <th className="px-3 py-2">الوحدة</th>
                     <th className="px-3 py-2">المشتري</th>
@@ -490,6 +588,79 @@ export default function ProjectPage() {
               </table>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
+          <h3 className="font-semibold mb-3">خطة الأقساط</h3>
+          {snapshot.installments && snapshot.installments.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto border-collapse text-sm text-right">
+                <thead>
+                  <tr className="text-right bg-slate-50">
+                    <th className="px-3 py-2">الاستحقاق</th>
+                    <th className="px-3 py-2">المبلغ</th>
+                    <th className="px-3 py-2">الوحدة</th>
+                    <th className="px-3 py-2">المشتري</th>
+                    <th className="px-3 py-2">الحالة</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {snapshot.installments.map((inst) => (
+                    <tr key={inst.id} className="border-t">
+                      <td className="px-3 py-2">{inst.dueDate}</td>
+                      <td className="px-3 py-2">
+                        {inst.amount.toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2">{inst.unitNo}</td>
+                      <td className="px-3 py-2">{inst.buyer}</td>
+                      <td className="px-3 py-2">
+                        {inst.paid ? "مسدد" : "غير مسدد"}
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {!inst.paid && (
+                          <button
+                            className="rounded-md bg-emerald-600 text-white px-3 py-1"
+                            onClick={async () => {
+                              try {
+                                const r = await payInstallment(inst.id);
+                                setSnapshot((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        installments: prev.installments.map(
+                                          (x) =>
+                                            x.id === inst.id
+                                              ? r.installment
+                                              : x,
+                                        ),
+                                      }
+                                    : prev,
+                                );
+                                toast.success("تم تسجيل سداد القسط");
+                              } catch (e) {
+                                const msg =
+                                  e instanceof Error
+                                    ? e.message
+                                    : "تعذر السداد";
+                                toast.error("فشل سداد القسط", {
+                                  description: msg,
+                                });
+                              }
+                            }}
+                          >
+                            سداد
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">لا توجد أقساط مسجلة.</div>
+          )}
         </div>
 
         <div className="rounded-lg border p-4 bg-white">

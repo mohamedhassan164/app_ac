@@ -176,7 +176,7 @@ export default function AccountingSystem() {
       toast.success("تم اعتماد المعاملة");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "تعذر اعتماد المعاملة";
+        error instanceof Error ? error.message : "��عذر اعتماد المعاملة";
       toast.error("فشل اعتماد المعاملة", { description: message });
     } finally {
       setApprovingId(null);
@@ -595,9 +595,9 @@ export default function AccountingSystem() {
         <section className="bg-white border border-slate-200 rounded-xl p-4 shadow">
           <h3 className="font-semibold mb-3">المعاملات المالية</h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+            <table className="w-full table-auto border-collapse text-sm text-right">
               <thead>
-                <tr className="text-left bg-slate-50">
+                <tr className="text-right bg-slate-50">
                   <th className="px-3 py-2">التاريخ</th>
                   <th className="px-3 py-2">النوع</th>
                   <th className="px-3 py-2">الوصف</th>
@@ -660,7 +660,7 @@ export default function AccountingSystem() {
             </table>
             {transactions.length === 0 && (
               <div className="py-6 text-center text-sm text-slate-500">
-                لا توجد معاملات مسجلة بعد.
+                ل�� توجد معاملات مسجلة بعد.
               </div>
             )}
           </div>
@@ -880,9 +880,9 @@ export default function AccountingSystem() {
             <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
               <h3 className="font-semibold mb-3">حركة المخزون</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
+                <table className="w-full table-auto border-collapse text-sm text-right">
                   <thead>
-                    <tr className="text-left bg-slate-50">
+                    <tr className="text-right bg-slate-50">
                       <th className="px-3 py-2">التاريخ</th>
                       <th className="px-3 py-2">المادة</th>
                       <th className="px-3 py-2">نوع الحركة</th>
