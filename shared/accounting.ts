@@ -57,6 +57,8 @@ export interface ProjectSale {
   price: number;
   date: string;
   terms?: string | null;
+  area?: string | null;
+  paymentMethod?: string | null;
 }
 
 export interface ProjectSnapshot {
