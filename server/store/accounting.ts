@@ -802,7 +802,8 @@ export async function getProjectSnapshot(
     const sales = [...fallbackStore.sales.values()]
       .filter((s) => s.projectId === id)
       .sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
-    return { project, costs, sales };
+    const installments = getProjectInstallments(id);
+    return { project, costs, sales, installments };
   }
   const [costRows] = await pool.query<ProjectCostRow[]>(
     `SELECT id, project_id, type, amount, date, note, created_at
