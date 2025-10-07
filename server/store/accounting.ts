@@ -67,7 +67,7 @@ interface ProjectRow extends RowDataPacket {
 interface ProjectCostRow extends RowDataPacket {
   id: string;
   project_id: string;
-  type: "construction" | "operation" | "expense";
+  type: ProjectCostType;
   amount: number | string;
   date: string | Date;
   note: string | null;
