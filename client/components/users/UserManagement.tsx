@@ -191,9 +191,9 @@ export default function UserManagement() {
             <div>جار التحميل...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+              <table className="w-full table-auto border-collapse text-sm">
                 <thead>
-                  <tr className="text-left bg-slate-50">
+                  <tr className="text-right bg-slate-50">
                     <th className="px-3 py-2">الاسم</th>
                     <th className="px-3 py-2">البريد</th>
                     <th className="px-3 py-2">الدور</th>
