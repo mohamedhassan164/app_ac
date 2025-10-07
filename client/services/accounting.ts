@@ -178,3 +178,17 @@ export async function deleteProject(id: string): Promise<void> {
     headers: { ...authHeaders() },
   });
 }
+
+export async function payInstallment(
+  id: string,
+  date?: string,
+): Promise<{ installment: Installment; transaction: Transaction }> {
+  return request<{ installment: Installment; transaction: Transaction }>(
+    `/api/accounting/installments/${id}/pay`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ date }),
+    },
+  );
+}
