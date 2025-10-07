@@ -59,6 +59,12 @@ export interface ProjectSale {
   terms?: string | null;
 }
 
+export interface ProjectSnapshot {
+  project: Project;
+  costs: ProjectCost[];
+  sales: ProjectSale[];
+}
+
 export interface AccountingSnapshot {
   transactions: Transaction[];
   items: InventoryItem[];
