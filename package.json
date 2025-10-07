@@ -43,7 +43,6 @@
     }
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
     "bcryptjs": "^2.4.3",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
