@@ -19,6 +19,7 @@ import {
   type ProjectSaleCreateResult,
   type ProjectSnapshot,
   type Transaction,
+  type Installment,
   type TransactionCreateInput,
 } from "@shared/accounting";
 import { getInitializedMysqlPool } from "../lib/mysql";
@@ -94,6 +95,7 @@ const fallbackStore = {
   projects: new Map<string, Project>(),
   costs: new Map<string, ProjectCost>(),
   sales: new Map<string, ProjectSale>(),
+  installments: new Map<string, Installment>(),
 };
 
 type ProjectCostNoteData = {
