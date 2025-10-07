@@ -11,6 +11,7 @@ import {
   type Project,
   type ProjectCost,
   type ProjectCostCreateInput,
+  type ProjectCostType,
   type ProjectCostCreateResult,
   type ProjectCreateInput,
   type ProjectSale,
