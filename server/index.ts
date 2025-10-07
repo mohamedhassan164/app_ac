@@ -30,6 +30,7 @@ import {
   getProjectHandler,
   recordInventoryIssueHandler,
   recordInventoryReceiptHandler,
+  payInstallmentHandler,
 } from "./routes/accounting";
 import { initializeMysql } from "./lib/mysql";
 
