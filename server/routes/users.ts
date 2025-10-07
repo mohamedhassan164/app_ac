@@ -55,7 +55,8 @@ export const createUserHandler: RequestHandler = async (req, res) => {
     const user = await createUser(body);
     res.status(201).json(user);
   } catch (error: any) {
-    const code = typeof error === "object" && error ? (error as any).code : undefined;
+    const code =
+      typeof error === "object" && error ? (error as any).code : undefined;
     if (code === "ER_DUP_ENTRY") {
       res
         .status(409)
@@ -86,7 +87,8 @@ export const updateUserHandler: RequestHandler = async (req, res) => {
     }
     res.json(updated);
   } catch (error: any) {
-    const code = typeof error === "object" && error ? (error as any).code : undefined;
+    const code =
+      typeof error === "object" && error ? (error as any).code : undefined;
     if (code === "ER_DUP_ENTRY") {
       res
         .status(409)

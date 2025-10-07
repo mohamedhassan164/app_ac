@@ -3,10 +3,7 @@ import crypto from "node:crypto";
 import type { Role, User, UserWithPassword } from "@shared/api";
 import bcrypt from "bcryptjs";
 import type { RowDataPacket } from "mysql2/promise";
-import {
-  getInitializedMysqlPool,
-  isMysqlConfigured,
-} from "../lib/mysql";
+import { getInitializedMysqlPool, isMysqlConfigured } from "../lib/mysql";
 import { supabaseAdmin } from "../lib/supabase";
 
 // In-memory stores (non-persistent) - fallback when external persistence is missing
@@ -311,7 +308,10 @@ export async function updateUser(
     if (updates.length) {
       params.push(id);
       try {
-        const [result] = await pool.query(`UPDATE users SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, params);
+        const [result] = await pool.query(
+          `UPDATE users SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+          params,
+        );
         const { affectedRows } = result as { affectedRows?: number };
         if (!affectedRows) return null;
       } catch (error) {

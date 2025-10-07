@@ -102,13 +102,16 @@ export const adminCreateUser: RequestHandler = async (req, res) => {
       });
       return res.status(201).json(user);
     } catch (error: any) {
-      const code = typeof error === "object" && error ? (error as any).code : undefined;
+      const code =
+        typeof error === "object" && error ? (error as any).code : undefined;
       if (code === "ER_DUP_ENTRY") {
         return res
           .status(409)
           .json({ error: "Username or email already exists" } as ApiError);
       }
-      return res.status(500).json({ error: "Failed to create user" } as ApiError);
+      return res
+        .status(500)
+        .json({ error: "Failed to create user" } as ApiError);
     }
   }
 
@@ -170,13 +173,16 @@ export const adminUpdateUser: RequestHandler = async (req, res) => {
         return res.status(404).json({ error: "User not found" } as ApiError);
       return res.json(updated);
     } catch (error: any) {
-      const code = typeof error === "object" && error ? (error as any).code : undefined;
+      const code =
+        typeof error === "object" && error ? (error as any).code : undefined;
       if (code === "ER_DUP_ENTRY") {
         return res
           .status(409)
           .json({ error: "Username or email already exists" } as ApiError);
       }
-      return res.status(500).json({ error: "Failed to update user" } as ApiError);
+      return res
+        .status(500)
+        .json({ error: "Failed to update user" } as ApiError);
     }
   }
 

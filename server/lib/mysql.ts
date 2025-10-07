@@ -76,15 +76,7 @@ async function seedManager(pool: mysql.Pool) {
   await pool.query(
     `INSERT INTO users (id, username, name, email, role, active, password_hash)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      id,
-      "root",
-      "Manager",
-      "admin@example.com",
-      "manager",
-      1,
-      passwordHash,
-    ],
+    [id, "root", "Manager", "admin@example.com", "manager", 1, passwordHash],
   );
 }
 
