@@ -378,6 +378,12 @@ export const createProjectCostHandler: RequestHandler = async (req, res) => {
     respondError(res, 400, "Invalid amount");
     return;
   }
+  const customTypeLabel =
+    typeof body.customTypeLabel === "string" ? body.customTypeLabel : null;
+  if (body.type === "other" && (!customTypeLabel || !customTypeLabel.trim())) {
+    respondError(res, 400, "Custom type label required");
+    return;
+  }
   try {
     const result = await createProjectCostStore({
       projectId: String(projectId),
