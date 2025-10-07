@@ -373,6 +373,16 @@ export const createProjectCostHandler: RequestHandler = async (req, res) => {
     respondError(res, 400, "Missing required fields");
     return;
   }
+  const allowedCostTypes = new Set([
+    "construction",
+    "operation",
+    "expense",
+    "other",
+  ]);
+  if (!allowedCostTypes.has(body.type as string)) {
+    respondError(res, 400, "Invalid cost type");
+    return;
+  }
   const amount = ensureNumber(body.amount);
   if (!Number.isFinite(amount) || amount <= 0) {
     respondError(res, 400, "Invalid amount");
