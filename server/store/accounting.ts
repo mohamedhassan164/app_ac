@@ -1001,19 +1001,37 @@ export async function createProjectSale(
        FROM project_sales WHERE id = ? LIMIT 1`,
       [id],
     );
+    const hasPlan = Boolean(
+      input && input.monthlyAmount && input.months && input.firstDueDate,
+    );
+    const immediateAmount = hasPlan ? Math.max(0, Number(input.downPayment ?? 0)) : input.price;
     const transaction = await insertTransactionDb(
       {
         date: input.date,
         type: "revenue",
-        description: `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
-        amount: input.price,
+        description: hasPlan
+          ? `بيع بالتقسيط لوحدة ${input.unitNo} من مشروع ${input.projectName} (مقدم)`
+          : `بيع وحدة ${input.unitNo} من مشروع ${input.projectName} إلى ${input.buyer}`,
+        amount: immediateAmount,
         approved: input.approved,
         createdBy: input.createdBy ?? null,
       },
       conn,
     );
+    let installments: Installment[] | undefined;
+    if (hasPlan) {
+      installments = createInstallmentsForSale({
+        projectId: input.projectId,
+        saleId: id,
+        unitNo: input.unitNo,
+        buyer: input.buyer,
+        monthlyAmount: Number(input.monthlyAmount),
+        months: Number(input.months),
+        firstDueDate: String(input.firstDueDate),
+      });
+    }
     await conn.commit();
-    return { sale: mapProjectSaleRow(rows[0]), transaction };
+    return { sale: mapProjectSaleRow(rows[0]), transaction, installments };
   } catch (error) {
     await conn.rollback();
     throw error;
