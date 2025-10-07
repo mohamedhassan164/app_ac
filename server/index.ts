@@ -24,7 +24,9 @@ import {
   createProjectSaleHandler,
   createTransactionHandler,
   deleteInventoryItemHandler,
+  deleteProjectHandler,
   deleteTransactionHandler,
+  getProjectDetailsHandler,
   getProjectHandler,
   recordInventoryIssueHandler,
   recordInventoryReceiptHandler,
@@ -82,6 +84,8 @@ export function createServer() {
   app.post("/api/accounting/inventory/issue", recordInventoryIssueHandler);
   app.post("/api/accounting/projects", createProjectHandler);
   app.get("/api/accounting/projects/:id", getProjectHandler);
+  app.get("/api/accounting/projects/:id/details", getProjectDetailsHandler);
+  app.delete("/api/accounting/projects/:id", deleteProjectHandler);
   app.post("/api/accounting/projects/:id/costs", createProjectCostHandler);
   app.post("/api/accounting/projects/:id/sales", createProjectSaleHandler);
 
