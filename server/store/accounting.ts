@@ -849,6 +849,8 @@ export async function createProjectSale(
       price: input.price,
       date: input.date,
       terms: input.terms ?? null,
+      area: input.area ?? null,
+      paymentMethod: input.paymentMethod ?? null,
     };
     fallbackStore.sales.set(sale.id, sale);
     const transaction = createTransactionFallback({
