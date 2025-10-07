@@ -339,7 +339,7 @@ export async function getAccountingSnapshot(): Promise<AccountingSnapshot> {
      ORDER BY date DESC, created_at DESC`,
   );
   const [saleRows] = await pool.query<ProjectSaleRow[]>(
-    `SELECT id, project_id, unit_no, buyer, price, date, terms, created_at
+    `SELECT id, project_id, unit_no, buyer, price, date, terms, area, payment_method, created_at
      FROM project_sales
      ORDER BY date DESC, created_at DESC`,
   );
