@@ -848,6 +848,9 @@ export async function createProjectCost(
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+    const customTypeLabel = normalizeCustomTypeLabel(input.customTypeLabel);
+    const note = typeof input.note === "string" ? input.note : "";
+    const storedNote = serializeProjectCostNote(note, customTypeLabel);
     const id = crypto.randomUUID();
     await conn.query(
       `INSERT INTO project_costs (id, project_id, type, amount, date, note)
