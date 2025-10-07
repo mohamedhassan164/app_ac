@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import mysql from "mysql2/promise";
+import mysql, { type RowDataPacket } from "mysql2/promise";
 import { hash } from "bcryptjs";
 
 const MYSQL_HOST = process.env.MYSQL_HOST;
@@ -60,8 +60,10 @@ async function ensureSchema(pool: mysql.Pool) {
 }
 
 async function seedManager(pool: mysql.Pool) {
-  const [rows] = await pool.query<{ id: string }[]>
-    ("SELECT id FROM users WHERE username = ? LIMIT 1", ["root"]);
+  const [rows] = await pool.query<RowDataPacket[]>(
+    "SELECT 1 FROM users WHERE username = ? LIMIT 1",
+    ["root"],
+  );
   if (Array.isArray(rows) && rows.length > 0) return;
 
   const id = crypto.randomUUID();
