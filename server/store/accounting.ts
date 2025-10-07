@@ -81,6 +81,8 @@ interface ProjectSaleRow extends RowDataPacket {
   price: number | string;
   date: string | Date;
   terms: string | null;
+  area: string | null;
+  payment_method: string | null;
   created_at: string | Date | null;
 }
 
