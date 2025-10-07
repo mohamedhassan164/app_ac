@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DollarSign, ArrowUp, ArrowDown, Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import UserManagement from "@/components/users/UserManagement";
 import { toast } from "sonner";
@@ -14,8 +8,6 @@ import {
   approveTransaction,
   createInventoryItem,
   createProject,
-  createProjectCost,
-  createProjectSale,
   createTransaction,
   deleteInventoryItem,
   deleteTransaction,
@@ -281,7 +273,7 @@ export default function AccountingSystem() {
       !receive.unitPrice ||
       !receive.supplier
     ) {
-      toast.error("الرجاء إدخال جميع بيانات الوارد");
+      toast.error("الرجاء ��دخال جميع بيانات الوارد");
       return;
     }
     const qty = Number(receive.qty);
