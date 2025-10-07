@@ -83,7 +83,7 @@ export default function ProjectPage() {
     if (!newCost.amount) return toast.error("المبلغ مطلوب");
     const amount = Number(newCost.amount);
     if (!Number.isFinite(amount) || amount <= 0)
-      return toast.error("قيمة غير صحيحة");
+      return toast.error("قيمة غ��ر صحيحة");
     const customTypeLabel =
       newCost.type === "other" ? newCost.customTypeLabel.trim() : undefined;
     if (newCost.type === "other" && !customTypeLabel) {
@@ -293,14 +293,7 @@ export default function ProjectPage() {
                   {savingCost ? "جاري التسجيل..." : "تسجيل التكلفة"}
                 </button>
                 <button
-                  onClick={() =>
-                    setNewCost({
-                      type: "construction",
-                      amount: "",
-                      date: today(),
-                      note: "",
-                    })
-                  }
+                  onClick={() => setNewCost(makeNewCostState())}
                   className="rounded-md border px-3 py-2 bg-white"
                 >
                   إعادة تعيين
