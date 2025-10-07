@@ -367,7 +367,7 @@ export default function AccountingSystem() {
       !newProject.floors ||
       !newProject.units
     ) {
-      toast.error("الرجاء إدخال بيانات المشر��ع كاملة");
+      toast.error("الرجاء إدخال بيانات المشروع كاملة");
       return;
     }
     const floors = Number(newProject.floors);
@@ -421,38 +421,6 @@ export default function AccountingSystem() {
     [costs, sales],
   );
 
-  function printInvoice(
-    id: string,
-    fallbackSale?: ProjectSale,
-    fallbackProject?: Project,
-  ) {
-    const sale = fallbackSale ?? sales.find((x) => x.id === id);
-    if (!sale) return;
-    const project =
-      fallbackProject ?? projects.find((x) => x.id === sale.projectId);
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document
-      .write(`<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة بيع</title>
-      <style>body{font-family:Arial,system-ui;padding:24px;background:#f6f7fb;color:#111} .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;max-width:720px;margin:0 auto} .h{font-weight:800;font-size:20px;margin-bottom:8px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} .row{display:flex;justify-content:space-between;margin:6px 0} .total{font-weight:800;font-size:18px} .mt{margin-top:16px} .btn{display:inline-block;margin-top:16px;padding:10px 16px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>
-    </head><body>
-      <div class="card">
-        <div class="h">فاتورة بيع وحدة عقارية</div>
-        <div class="grid">
-          <div class="row"><div>المشروع:</div><div>${project?.name ?? ""}</div></div>
-          <div class="row"><div>الموقع:</div><div>${project?.location ?? ""}</div></div>
-          <div class="row"><div>رقم الوحدة:</div><div>${sale.unitNo}</div></div>
-          <div class="row"><div>المشتري:</div><div>${sale.buyer}</div></div>
-          <div class="row"><div>التاريخ:</div><div>${sale.date}</div></div>
-        </div>
-        <div class="mt row total"><div>السعر الإجمالي:</div><div>${sale.price.toLocaleString()} ج.م</div></div>
-        ${sale.terms ? `<div class="mt">الشروط: ${sale.terms}</div>` : ""}
-        <a href="#" class="btn" onclick="window.print();return false;">طباعة</a>
-      </div>
-    </body></html>`);
-    win.document.close();
-  }
-
   if (initialLoading) {
     return (
       <div className="py-10 text-center text-slate-500">
@@ -480,7 +448,7 @@ export default function AccountingSystem() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-extrabold">لوحة التحكم</h1>
-          <p className="text-slate-500 text-sm">نظام محاسبة عقاري</p>
+          <p className="text-slate-500 text-sm">نظام مح��سبة عقاري</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 justify-center sm:justify-start md:w-auto md:justify-end">
           {(() => {
@@ -556,7 +524,7 @@ export default function AccountingSystem() {
             />
             <Stat
               value={totals.profit}
-              label="صافي ال��بح"
+              label="صافي الربح"
               color="from-indigo-100 to-indigo-200"
               icon={<DollarSign className="h-5 w-5 text-indigo-700" />}
             />
@@ -1281,7 +1249,7 @@ export default function AccountingSystem() {
                                   <strong>الاسم:</strong> {p.name}
                                 </div>
                                 <div>
-                                  <strong>الموقع:</strong> {p.location}
+                                  <strong>الم��قع:</strong> {p.location}
                                 </div>
                                 <div>
                                   <strong>الأدوار:</strong> {p.floors}
@@ -1294,7 +1262,7 @@ export default function AccountingSystem() {
                                 </div>
                                 <div>
                                   <strong>التكاليف:</strong>{" "}
-                                  {t.costs.toLocaleString()} ج.��
+                                  {t.costs.toLocaleString()} ج.م
                                 </div>
                                 <div>
                                   <strong>المبيعات:</strong>{" "}
@@ -1523,7 +1491,7 @@ function ReportsSection({
         title: "تق��ير الأرباح والخسائر",
         headers: ["البند", "القيمة"],
         rows: [
-          ["إجما��ي الإيرادات", rev.toLocaleString() + " ج.م"],
+          ["إجمالي الإيرادات", rev.toLocaleString() + " ج.م"],
           ["إجمالي المصروفات", exp.toLocaleString() + " ج.م"],
           ["صافي الربح", (rev - exp).toLocaleString() + " ج.م"],
         ],
@@ -1580,7 +1548,7 @@ function ReportsSection({
       ]);
       return {
         title: "تقرير المخزون",
-        headers: ["المادة", "الكمية", "الحد الأدنى", "الحالة"],
+        headers: ["المادة", "الكمية", "الح�� الأدنى", "الحالة"],
         rows,
       };
     }
