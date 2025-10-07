@@ -41,6 +41,8 @@ export default function ProjectPage() {
     price: "",
     date: today(),
     terms: "",
+    area: "",
+    paymentMethod: "كاش",
   });
   const [savingSale, setSavingSale] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -114,6 +116,7 @@ export default function ProjectPage() {
       return toast.error("قيمة غير صحيحة");
     try {
       setSavingSale(true);
+      const combinedTerms = `${newSale.terms ? newSale.terms + " | " : ""}المساحة: ${newSale.area || "-"} | طريقة الدفع: ${newSale.paymentMethod || "-"}`;
       const res = await createProjectSale({
         projectId: id,
         projectName: snapshot.project.name,
@@ -121,7 +124,7 @@ export default function ProjectPage() {
         buyer: newSale.buyer,
         price,
         date: newSale.date,
-        terms: newSale.terms || null,
+        terms: combinedTerms || null,
         approved: canManage,
         createdBy: user?.id ?? null,
       });
@@ -134,6 +137,8 @@ export default function ProjectPage() {
         price: "",
         date: today(),
         terms: "",
+        area: "",
+        paymentMethod: "كاش",
       });
       toast.success("تم تسجيل البيع وإصدار الفاتورة");
       printInvoice(res.sale.id);
@@ -144,6 +149,18 @@ export default function ProjectPage() {
       setSavingSale(false);
     }
   };
+
+  function parseSaleTerms(terms?: string | null) {
+    const res = { area: "-", paymentMethod: "-" };
+    if (!terms) return res;
+    try {
+      const mArea = terms.match(/المساحة:\s*([^|]+)/);
+      if (mArea) res.area = mArea[1].trim();
+      const mPay = terms.match(/طريقة الدفع:\s*([^|]+)/);
+      if (mPay) res.paymentMethod = mPay[1].trim();
+    } catch {}
+    return res;
+  }
 
   const printInvoice = (saleId: string) => {
     const sale = snapshot?.sales.find((s) => s.id === saleId);
@@ -334,6 +351,24 @@ export default function ProjectPage() {
                   }
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                  placeholder="المساحة (م²)"
+                  value={newSale.area}
+                  onChange={(e) => setNewSale({ ...newSale, area: e.target.value })}
+                />
+                <select
+                  className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
+                  value={newSale.paymentMethod}
+                  onChange={(e) => setNewSale({ ...newSale, paymentMethod: e.target.value })}
+                >
+                  <option value="كاش">كاش</option>
+                  <option value="تقسيط">تقسيط</option>
+                </select>
+              </div>
+
               <input
                 className="w-full rounded-md border-2 border-slate-200 focus:border-indigo-500 outline-none px-3 py-2"
                 placeholder="شروط التعاقد (اختياري)"
@@ -411,16 +446,22 @@ export default function ProjectPage() {
                     <th className="px-3 py-2">التاريخ</th>
                     <th className="px-3 py-2">الوحدة</th>
                     <th className="px-3 py-2">المشتري</th>
+                    <th className="px-3 py-2">المساحة</th>
+                    <th className="px-3 py-2">طريقة الدفع</th>
                     <th className="px-3 py-2">السعر</th>
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {snapshot.sales.map((s) => (
+                  {snapshot.sales.map((s) => {
+                    const parsed = parseSaleTerms(s.terms);
+                    return (
                     <tr key={s.id} className="border-t">
                       <td className="px-3 py-2">{s.date}</td>
                       <td className="px-3 py-2">{s.unitNo}</td>
                       <td className="px-3 py-2">{s.buyer}</td>
+                      <td className="px-3 py-2">{parsed.area}</td>
+                      <td className="px-3 py-2">{parsed.paymentMethod}</td>
                       <td className="px-3 py-2">{s.price.toLocaleString()}</td>
                       <td className="px-3 py-2 text-right">
                         <button
@@ -431,7 +472,7 @@ export default function ProjectPage() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
