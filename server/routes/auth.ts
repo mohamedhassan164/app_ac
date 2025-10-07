@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
-import { authenticate, getUserByToken, invalidateToken } from "../store/auth";
+import type { RequestHandler } from "express";
+import { authenticate, invalidateToken } from "../store/auth";
 import type {
   AuthLoginRequest,
   AuthLoginResponse,
