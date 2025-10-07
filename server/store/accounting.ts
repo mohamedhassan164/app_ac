@@ -861,7 +861,7 @@ export async function createProjectCost(
         input.type,
         input.amount,
         input.date,
-        input.note || null,
+        storedNote,
       ],
     );
     const [rows] = await conn.query<ProjectCostRow[]>(
