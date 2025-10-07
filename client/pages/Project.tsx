@@ -116,7 +116,6 @@ export default function ProjectPage() {
       return toast.error("قيمة غير صحيحة");
     try {
       setSavingSale(true);
-      const combinedTerms = `${newSale.terms ? newSale.terms + " | " : ""}المساحة: ${newSale.area || "-"} | طريقة الدفع: ${newSale.paymentMethod || "-"}`;
       const res = await createProjectSale({
         projectId: id,
         projectName: snapshot.project.name,
@@ -124,7 +123,9 @@ export default function ProjectPage() {
         buyer: newSale.buyer,
         price,
         date: newSale.date,
-        terms: combinedTerms || null,
+        terms: newSale.terms || null,
+        area: newSale.area || null,
+        paymentMethod: newSale.paymentMethod || null,
         approved: canManage,
         createdBy: user?.id ?? null,
       });
@@ -150,18 +151,6 @@ export default function ProjectPage() {
     }
   };
 
-  function parseSaleTerms(terms?: string | null) {
-    const res = { area: "-", paymentMethod: "-" };
-    if (!terms) return res;
-    try {
-      const mArea = terms.match(/المساحة:\s*([^|]+)/);
-      if (mArea) res.area = mArea[1].trim();
-      const mPay = terms.match(/طريقة الدفع:\s*([^|]+)/);
-      if (mPay) res.paymentMethod = mPay[1].trim();
-    } catch {}
-    return res;
-  }
-
   const printInvoice = (saleId: string) => {
     const sale = snapshot?.sales.find((s) => s.id === saleId);
     if (!sale || !snapshot) return;
@@ -173,8 +162,8 @@ export default function ProjectPage() {
       <h1>فاتورة بيع وحدة</h1>
       <div>المشروع: <strong>${p.name}</strong> — الموقع: ${p.location}</div>
       <div>التاريخ: ${sale.date}</div>
-      <table><thead><tr><th>الوحدة</th><th>المشتري</th><th>السعر</th><th>الشروط</th></tr></thead>
-        <tbody><tr><td>${sale.unitNo}</td><td>${sale.buyer}</td><td>${sale.price.toLocaleString()} ج.م</td><td>${sale.terms ?? "-"}</td></tr></tbody>
+      <table><thead><tr><th>الوحدة</th><th>المشتري</th><th>المساحة</th><th>طريقة الدفع</th><th>السعر</th></tr></thead>
+        <tbody><tr><td>${sale.unitNo}</td><td>${sale.buyer}</td><td>${sale.area ?? "-"}</td><td>${sale.paymentMethod ?? "-"}</td><td>${sale.price.toLocaleString()} ج.م</td></tr></tbody>
       </table>
       <script>window.print()</script>
     </body></html>`;
@@ -453,15 +442,13 @@ export default function ProjectPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {snapshot.sales.map((s) => {
-                    const parsed = parseSaleTerms(s.terms);
-                    return (
+                  {snapshot.sales.map((s) => (
                     <tr key={s.id} className="border-t">
                       <td className="px-3 py-2">{s.date}</td>
                       <td className="px-3 py-2">{s.unitNo}</td>
                       <td className="px-3 py-2">{s.buyer}</td>
-                      <td className="px-3 py-2">{parsed.area}</td>
-                      <td className="px-3 py-2">{parsed.paymentMethod}</td>
+                      <td className="px-3 py-2">{s.area ?? "-"}</td>
+                      <td className="px-3 py-2">{s.paymentMethod ?? "-"}</td>
                       <td className="px-3 py-2">{s.price.toLocaleString()}</td>
                       <td className="px-3 py-2 text-right">
                         <button
@@ -472,7 +459,7 @@ export default function ProjectPage() {
                         </button>
                       </td>
                     </tr>
-                  )})}
+                  ))}
                 </tbody>
               </table>
             </div>
