@@ -244,7 +244,7 @@ export const createProjectHandler: RequestHandler = async (req, res) => {
     return;
   }
   const body = parseBody<ProjectCreateInput>(req.body);
-  if (!body.name || !body.location || !body.date || !body.floors || !body.units) {
+  if (!body.name || !body.location || !body.createdAt || !body.floors || !body.units) {
     respondError(res, 400, "Missing required fields");
     return;
   }
@@ -259,7 +259,7 @@ export const createProjectHandler: RequestHandler = async (req, res) => {
     location: String(body.location),
     floors,
     units,
-    createdAt: String(body.date ?? body.createdAt ?? body.updatedAt ?? body.createdAt ?? new Date().toISOString().slice(0, 10)),
+    createdAt: String(body.createdAt),
   });
   res.status(201).json(project as Project);
 };
@@ -269,7 +269,7 @@ export const getProjectHandler: RequestHandler = async (req, res) => {
   if (!user) return;
   const project = await getProjectByIdStore(req.params.id);
   if (!project) {
-    res.status(404).json({ project: null });
+    respondError(res, 404, "Project not found");
     return;
   }
   res.json(project as Project);
