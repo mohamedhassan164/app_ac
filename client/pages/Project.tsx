@@ -77,6 +77,19 @@ export default function ProjectPage() {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (!snapshot) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const due = (snapshot.installments || []).filter(
+      (i) => !i.paid && i.dueDate <= todayStr,
+    );
+    if (due.length) {
+      due.slice(0, 5).forEach((i) =>
+        toast.warning(`قسط مستحق ${i.amount.toLocaleString()} ج.م للوحدة ${i.unitNo}`),
+      );
+    }
+  }, [snapshot]);
+
   const totals = useMemo(() => {
     const costs = snapshot?.costs.reduce((a, b) => a + b.amount, 0) ?? 0;
     const sales = snapshot?.sales.reduce((a, b) => a + b.price, 0) ?? 0;
