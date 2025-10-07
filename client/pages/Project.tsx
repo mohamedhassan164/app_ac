@@ -429,7 +429,7 @@ export default function ProjectPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
             <h3 className="font-semibold mb-3">التكاليف</h3>
             <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse text-sm">
+              <table className="w-full table-auto border-collapse text-sm text-right">
                 <thead>
                   <tr className="text-right bg-slate-50">
                     <th className="px-3 py-2">التاريخ</th>
@@ -455,7 +455,7 @@ export default function ProjectPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow">
             <h3 className="font-semibold mb-3">المبيعات</h3>
             <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse text-sm">
+              <table className="w-full table-auto border-collapse text-sm text-right">
                 <thead>
                   <tr className="text-right bg-slate-50">
                     <th className="px-3 py-2">التاريخ</th>
