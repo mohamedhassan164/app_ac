@@ -29,6 +29,7 @@ const today = () => new Date().toLocaleDateString("en-CA");
 
 export default function AccountingSystem() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isManager = user?.role === "manager";
   const isAccountant = user?.role === "accountant";
   const isEmployee = user?.role === "employee";
@@ -239,7 +240,7 @@ export default function AccountingSystem() {
       setDeletingItemId(id);
       await deleteInventoryItem(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
-      toast.success("تم حذف المادة");
+      toast.success("تم حذف الماد��");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "تعذر حذف المادة";
@@ -367,7 +368,7 @@ export default function AccountingSystem() {
       !newProject.floors ||
       !newProject.units
     ) {
-      toast.error("الرجاء إدخال بيانات المشروع كاملة");
+      toast.error("الرجاء إدخال بيا��ات المشروع كاملة");
       return;
     }
     const floors = Number(newProject.floors);
@@ -448,7 +449,7 @@ export default function AccountingSystem() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-extrabold">لوحة التحكم</h1>
-          <p className="text-slate-500 text-sm">نظام مح��سبة عقاري</p>
+          <p className="text-slate-500 text-sm">نظام محاسبة عقاري</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 justify-center sm:justify-start md:w-auto md:justify-end">
           {(() => {
@@ -1249,7 +1250,7 @@ export default function AccountingSystem() {
                                   <strong>الاسم:</strong> {p.name}
                                 </div>
                                 <div>
-                                  <strong>الم��قع:</strong> {p.location}
+                                  <strong>الموقع:</strong> {p.location}
                                 </div>
                                 <div>
                                   <strong>الأدوار:</strong> {p.floors}
@@ -1548,7 +1549,7 @@ function ReportsSection({
       ]);
       return {
         title: "تقرير المخزون",
-        headers: ["المادة", "الكمية", "الح�� الأدنى", "الحالة"],
+        headers: ["المادة", "الكمية", "الحد الأدنى", "الحالة"],
         rows,
       };
     }
