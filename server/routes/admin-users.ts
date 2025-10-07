@@ -97,9 +97,11 @@ export const adminUpdateUser: RequestHandler = async (req, res) => {
   if (!manager) return res.status(403).json({ error: "Forbidden" } as ApiError);
 
   const id = req.params.id;
-  const patch = parseBody<
-    UserUpdateRequest & { password?: string; email?: string; name?: string }
-  >(req.body);
+  const patch = (parseBody<Record<string, unknown>>(req.body) as UserUpdateRequest & {
+    password?: string;
+    email?: string;
+    name?: string;
+  });
 
   try {
     const updated = await updateUserFallback(id, patch as any);
