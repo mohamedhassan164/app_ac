@@ -122,10 +122,32 @@ export default function ProjectPage() {
   const addSale = async () => {
     if (!snapshot || !id) return;
     if (!newSale.unitNo || !newSale.buyer || !newSale.price)
-      return toast.error("��كمل بيانات البيع");
+      return toast.error("أكمل بيانات البيع");
     const price = Number(newSale.price);
     if (!Number.isFinite(price) || price <= 0)
       return toast.error("قيمة غير صحيحة");
+
+    const isInstallment = newSale.paymentMethod === "تقسيط";
+    let downPaymentNum: number | null = null;
+    let monthlyAmountNum: number | null = null;
+    let monthsNum: number | null = null;
+    let firstDue = null as string | null;
+    if (isInstallment) {
+      monthlyAmountNum = Number(newSale.monthlyAmount);
+      monthsNum = Number(newSale.months);
+      downPaymentNum = newSale.downPayment ? Number(newSale.downPayment) : 0;
+      firstDue = newSale.firstDueDate;
+      if (
+        !Number.isFinite(monthlyAmountNum) ||
+        monthlyAmountNum! <= 0 ||
+        !Number.isFinite(monthsNum) ||
+        monthsNum! <= 0 ||
+        !firstDue
+      ) {
+        return toast.error("أكمل بيانات التقسيط (المقدم اختياري)");
+      }
+    }
+
     try {
       setSavingSale(true);
       const res = await createProjectSale({
@@ -138,11 +160,23 @@ export default function ProjectPage() {
         terms: newSale.terms || null,
         area: newSale.area || null,
         paymentMethod: newSale.paymentMethod || null,
+        downPayment: isInstallment ? downPaymentNum : null,
+        monthlyAmount: isInstallment ? monthlyAmountNum : null,
+        months: isInstallment ? monthsNum : null,
+        firstDueDate: isInstallment ? firstDue : null,
         approved: canManage,
         createdBy: user?.id ?? null,
       });
       setSnapshot((prev) =>
-        prev ? { ...prev, sales: [res.sale, ...prev.sales] } : prev,
+        prev
+          ? {
+              ...prev,
+              sales: [res.sale, ...prev.sales],
+              installments: res.installments && res.installments.length
+                ? [...res.installments, ...prev.installments]
+                : prev.installments,
+            }
+          : prev,
       );
       setNewSale({
         unitNo: "",
@@ -152,6 +186,10 @@ export default function ProjectPage() {
         terms: "",
         area: "",
         paymentMethod: "كاش",
+        downPayment: "",
+        monthlyAmount: "",
+        months: "",
+        firstDueDate: today(),
       });
       toast.success("تم تسجيل البيع وإصدار الفاتورة");
       printInvoice(res.sale.id);
