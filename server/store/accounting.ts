@@ -823,19 +823,22 @@ export async function createProjectCost(
 ): Promise<ProjectCostCreateResult> {
   const pool = await getInitializedMysqlPool();
   if (!pool) {
+    const customTypeLabel = normalizeCustomTypeLabel(input.customTypeLabel);
+    const note = typeof input.note === "string" ? input.note : "";
     const cost: ProjectCost = {
       id: crypto.randomUUID(),
       projectId: input.projectId,
       type: input.type,
+      customTypeLabel,
       amount: input.amount,
       date: input.date,
-      note: input.note,
+      note,
     };
     fallbackStore.costs.set(cost.id, cost);
     const transaction = createTransactionFallback({
       date: input.date,
       type: "expense",
-      description: `تكلفة ${projectCostTypeLabel(input.type)} لمشروع ${input.projectName}`,
+      description: `تكلفة ${projectCostTypeLabel(input.type, customTypeLabel)} لمشروع ${input.projectName}`,
       amount: input.amount,
       approved: input.approved,
       createdBy: input.createdBy ?? null,
