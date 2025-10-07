@@ -30,7 +30,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       json = text ? JSON.parse(text) : null;
     } catch {}
-    const msg = (json && json.error) || text || `${res.status} ${res.statusText}`;
+    const msg =
+      (json && json.error) || text || `${res.status} ${res.statusText}`;
     throw new Error(msg || "Request failed");
   }
   return (await res.json()) as T;
@@ -43,7 +44,9 @@ export async function loadAccountingData(): Promise<AccountingSnapshot> {
   });
 }
 
-export async function createTransaction(input: TransactionCreateInput): Promise<Transaction> {
+export async function createTransaction(
+  input: TransactionCreateInput,
+): Promise<Transaction> {
   return request<Transaction>("/api/accounting/transactions", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -65,7 +68,9 @@ export async function deleteTransaction(id: string): Promise<void> {
   });
 }
 
-export async function createInventoryItem(input: InventoryItemCreateInput): Promise<InventoryItem> {
+export async function createInventoryItem(
+  input: InventoryItemCreateInput,
+): Promise<InventoryItem> {
   return request<InventoryItem>("/api/accounting/inventory/items", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -80,7 +85,9 @@ export async function deleteInventoryItem(id: string): Promise<void> {
   });
 }
 
-export async function recordInventoryReceipt(input: InventoryReceiptInput): Promise<InventoryMovementResult> {
+export async function recordInventoryReceipt(
+  input: InventoryReceiptInput,
+): Promise<InventoryMovementResult> {
   return request<InventoryMovementResult>("/api/accounting/inventory/receipt", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -88,7 +95,9 @@ export async function recordInventoryReceipt(input: InventoryReceiptInput): Prom
   });
 }
 
-export async function recordInventoryIssue(input: InventoryIssueInput): Promise<InventoryMovementResult> {
+export async function recordInventoryIssue(
+  input: InventoryIssueInput,
+): Promise<InventoryMovementResult> {
   return request<InventoryMovementResult>("/api/accounting/inventory/issue", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -96,7 +105,9 @@ export async function recordInventoryIssue(input: InventoryIssueInput): Promise<
   });
 }
 
-export async function createProject(input: ProjectCreateInput): Promise<Project> {
+export async function createProject(
+  input: ProjectCreateInput,
+): Promise<Project> {
   return request<Project>("/api/accounting/projects", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -115,20 +126,30 @@ export async function loadProjectById(id: string): Promise<Project | null> {
   }
 }
 
-export async function createProjectCost(input: ProjectCostCreateInput): Promise<ProjectCostCreateResult> {
+export async function createProjectCost(
+  input: ProjectCostCreateInput,
+): Promise<ProjectCostCreateResult> {
   const projectId = input.projectId;
-  return request<ProjectCostCreateResult>(`/api/accounting/projects/${projectId}/costs`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(input),
-  });
+  return request<ProjectCostCreateResult>(
+    `/api/accounting/projects/${projectId}/costs`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(input),
+    },
+  );
 }
 
-export async function createProjectSale(input: ProjectSaleCreateInput): Promise<ProjectSaleCreateResult> {
+export async function createProjectSale(
+  input: ProjectSaleCreateInput,
+): Promise<ProjectSaleCreateResult> {
   const projectId = input.projectId;
-  return request<ProjectSaleCreateResult>(`/api/accounting/projects/${projectId}/sales`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(input),
-  });
+  return request<ProjectSaleCreateResult>(
+    `/api/accounting/projects/${projectId}/sales`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(input),
+    },
+  );
 }

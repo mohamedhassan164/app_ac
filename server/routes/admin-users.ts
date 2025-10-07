@@ -37,7 +37,9 @@ export const adminCreateUser: RequestHandler = async (req, res) => {
   const manager = await requireManager(token);
   if (!manager) return res.status(403).json({ error: "Forbidden" } as ApiError);
 
-  const raw = parseBody<Partial<UserCreateRequest> & Record<string, any>>(req.body);
+  const raw = parseBody<Partial<UserCreateRequest> & Record<string, any>>(
+    req.body,
+  );
   const email = String((raw as any).email ?? (raw as any).gmail ?? "").trim();
   const password = String((raw as any).password ?? "").trim();
   const roleInput = String((raw as any).role ?? "employee");
@@ -78,7 +80,8 @@ export const adminCreateUser: RequestHandler = async (req, res) => {
     });
     return res.status(201).json(user);
   } catch (error: any) {
-    const code = typeof error === "object" && error ? (error as any).code : undefined;
+    const code =
+      typeof error === "object" && error ? (error as any).code : undefined;
     if (code === "ER_DUP_ENTRY") {
       return res
         .status(409)
@@ -97,18 +100,22 @@ export const adminUpdateUser: RequestHandler = async (req, res) => {
   if (!manager) return res.status(403).json({ error: "Forbidden" } as ApiError);
 
   const id = req.params.id;
-  const patch = (parseBody<Record<string, unknown>>(req.body) as UserUpdateRequest & {
+  const patch = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as UserUpdateRequest & {
     password?: string;
     email?: string;
     name?: string;
-  });
+  };
 
   try {
     const updated = await updateUserFallback(id, patch as any);
-    if (!updated) return res.status(404).json({ error: "User not found" } as ApiError);
+    if (!updated)
+      return res.status(404).json({ error: "User not found" } as ApiError);
     return res.json(updated);
   } catch (error: any) {
-    const code = typeof error === "object" && error ? (error as any).code : undefined;
+    const code =
+      typeof error === "object" && error ? (error as any).code : undefined;
     if (code === "ER_DUP_ENTRY") {
       return res
         .status(409)

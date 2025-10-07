@@ -39,7 +39,9 @@ export const createUserHandler: RequestHandler = async (req, res) => {
     res.status(403).json({ error: "Forbidden" } as ApiError);
     return;
   }
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as UserCreateRequest;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as UserCreateRequest;
   if (
     !body.username ||
     !body.password ||
@@ -77,7 +79,9 @@ export const updateUserHandler: RequestHandler = async (req, res) => {
     return;
   }
   const id = req.params.id;
-  const patch = parseBody<Record<string, unknown>>(req.body) as UserUpdateRequest;
+  const patch = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as UserUpdateRequest;
   try {
     const updated = await updateUser(id, patch);
     if (!updated) {

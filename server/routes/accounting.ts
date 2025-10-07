@@ -85,7 +85,9 @@ export const accountingSnapshotHandler: RequestHandler = async (req, res) => {
 export const createTransactionHandler: RequestHandler = async (req, res) => {
   const user = await requireAuth(req, res);
   if (!user) return;
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as TransactionCreateInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as TransactionCreateInput;
   if (!body.date || !body.type || !body.description) {
     respondError(res, 400, "Missing required fields");
     return;
@@ -144,7 +146,9 @@ export const createInventoryItemHandler: RequestHandler = async (req, res) => {
     respondError(res, 403, "Forbidden");
     return;
   }
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as InventoryItemCreateInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as InventoryItemCreateInput;
   if (!body.name || !body.unit || !body.updatedAt) {
     respondError(res, 400, "Missing required fields");
     return;
@@ -191,7 +195,9 @@ export const recordInventoryReceiptHandler: RequestHandler = async (
 ) => {
   const user = await requireAuth(req, res);
   if (!user) return;
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as InventoryReceiptInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as InventoryReceiptInput;
   if (
     !body.itemId ||
     !body.qty ||
@@ -232,7 +238,9 @@ export const recordInventoryReceiptHandler: RequestHandler = async (
 export const recordInventoryIssueHandler: RequestHandler = async (req, res) => {
   const user = await requireAuth(req, res);
   if (!user) return;
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as InventoryIssueInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as InventoryIssueInput;
   if (
     !body.itemId ||
     !body.qty ||
@@ -277,7 +285,9 @@ export const createProjectHandler: RequestHandler = async (req, res) => {
     respondError(res, 403, "Forbidden");
     return;
   }
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as ProjectCreateInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as ProjectCreateInput;
   if (
     !body.name ||
     !body.location ||
@@ -327,7 +337,9 @@ export const createProjectCostHandler: RequestHandler = async (req, res) => {
     respondError(res, 403, "Forbidden");
     return;
   }
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as ProjectCostCreateInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as ProjectCostCreateInput;
   const projectId = req.params.id || body.projectId;
   if (!projectId || !body.projectName || !body.type || !body.date) {
     respondError(res, 400, "Missing required fields");
@@ -362,7 +374,9 @@ export const createProjectSaleHandler: RequestHandler = async (req, res) => {
     respondError(res, 403, "Forbidden");
     return;
   }
-  const body = (parseBody<Record<string, unknown>>(req.body) as unknown) as ProjectSaleCreateInput;
+  const body = parseBody<Record<string, unknown>>(
+    req.body,
+  ) as unknown as ProjectSaleCreateInput;
   const projectId = req.params.id || body.projectId;
   if (
     !projectId ||

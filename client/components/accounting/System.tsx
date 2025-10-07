@@ -604,9 +604,7 @@ export default function AccountingSystem() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-extrabold">لوحة التحكم</h1>
-          <p className="text-slate-500 text-sm">
-            نظام محاسبة عقاري 
-          </p>
+          <p className="text-slate-500 text-sm">نظام محاسبة عقاري</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 justify-center sm:justify-start md:w-auto md:justify-end">
           {(() => {

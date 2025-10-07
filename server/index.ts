@@ -75,15 +75,9 @@ export function createServer() {
     "/api/accounting/transactions/:id/approve",
     approveTransactionHandler,
   );
-  app.delete(
-    "/api/accounting/transactions/:id",
-    deleteTransactionHandler,
-  );
+  app.delete("/api/accounting/transactions/:id", deleteTransactionHandler);
   app.post("/api/accounting/inventory/items", createInventoryItemHandler);
-  app.delete(
-    "/api/accounting/inventory/items/:id",
-    deleteInventoryItemHandler,
-  );
+  app.delete("/api/accounting/inventory/items/:id", deleteInventoryItemHandler);
   app.post("/api/accounting/inventory/receipt", recordInventoryReceiptHandler);
   app.post("/api/accounting/inventory/issue", recordInventoryIssueHandler);
   app.post("/api/accounting/projects", createProjectHandler);

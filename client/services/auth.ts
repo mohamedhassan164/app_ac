@@ -23,7 +23,10 @@ export async function login(
   const res = await fetch(apiUrl("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: input.username, password: input.password }),
+    body: JSON.stringify({
+      username: input.username,
+      password: input.password,
+    }),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -31,7 +34,8 @@ export async function login(
     try {
       json = text ? JSON.parse(text) : null;
     } catch {}
-    const msg = (json && json.error) || text || `${res.status} ${res.statusText}`;
+    const msg =
+      (json && json.error) || text || `${res.status} ${res.statusText}`;
     throw new Error(msg || "Invalid email or password");
   }
   const data = (await res.json()) as AuthLoginResponse;
@@ -43,7 +47,9 @@ export async function me(): Promise<User | null> {
   const token = getToken();
   if (!token) return null;
   try {
-    const res = await fetch(apiUrl(`/api/auth/me?token=${encodeURIComponent(token)}`));
+    const res = await fetch(
+      apiUrl(`/api/auth/me?token=${encodeURIComponent(token)}`),
+    );
     if (!res.ok) return null;
     let json: any = null;
     try {
@@ -62,9 +68,12 @@ export async function logout() {
   const token = getToken();
   try {
     if (token) {
-      await fetch(apiUrl(`/api/auth/logout?token=${encodeURIComponent(token)}`), {
-        method: "POST",
-      });
+      await fetch(
+        apiUrl(`/api/auth/logout?token=${encodeURIComponent(token)}`),
+        {
+          method: "POST",
+        },
+      );
     }
   } catch {}
   setToken(null);
