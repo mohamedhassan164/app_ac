@@ -22,14 +22,16 @@ import {
   loadAccountingData,
   recordInventoryIssue,
   recordInventoryReceipt,
-  type InventoryItem,
-  type Movement,
-  type Project,
-  type ProjectCost,
-  type ProjectSale,
-  type Transaction,
-  type TransType,
 } from "@/services/accounting";
+import type {
+  InventoryItem,
+  Movement,
+  Project,
+  ProjectCost,
+  ProjectSale,
+  Transaction,
+  TransType,
+} from "@shared/accounting";
 
 const today = () => new Date().toLocaleDateString("en-CA");
 
@@ -602,9 +604,7 @@ export default function AccountingSystem() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-extrabold">لوحة التحكم</h1>
-          <p className="text-slate-500 text-sm">
-            نظام محاسبة عقاري 
-          </p>
+          <p className="text-slate-500 text-sm">نظام محاسبة عقاري</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 justify-center sm:justify-start md:w-auto md:justify-end">
           {(() => {
@@ -1644,7 +1644,7 @@ function ReportsSection({
         .filter((t) => t.type === "expense")
         .reduce((a, b) => a + b.amount, 0);
       return {
-        title: "تقرير الأرباح والخسائر",
+        title: "تق��ير الأرباح والخسائر",
         headers: ["البند", "القيمة"],
         rows: [
           ["إجمالي الإيرادات", rev.toLocaleString() + " ج.م"],
@@ -1817,7 +1817,7 @@ function ReportsSection({
           >
             <option value="profit-loss">الأرباح والخسائر</option>
             <option value="revenue">الإيرادات</option>
-            <option value="expense">المصروفات</option>
+            <option value="expense">المصر��فات</option>
             <option value="salary">المرتبات</option>
             <option value="project">تقرير مشروع</option>
             <option value="inventory">تقرير المخزون</option>

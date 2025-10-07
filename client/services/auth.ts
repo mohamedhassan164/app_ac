@@ -20,43 +20,27 @@ export function setToken(token: string | null) {
 export async function login(
   input: AuthLoginRequest,
 ): Promise<AuthLoginResponse> {
-  const { supabase } = await import("@/lib/supabase");
-  let data: any, error: any;
-  try {
-    const res = await supabase.auth.signInWithPassword({
-      email: input.username,
+  const res = await fetch(apiUrl("/api/auth/login"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: input.username,
       password: input.password,
-    });
-    data = res.data;
-    error = res.error;
-  } catch (e: any) {
-    const msg = String(e?.message || e);
-    if (msg.includes("body stream already read")) {
-      throw new Error("Invalid email or password");
-    }
-    throw e;
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    let json: any = null;
+    try {
+      json = text ? JSON.parse(text) : null;
+    } catch {}
+    const msg =
+      (json && json.error) || text || `${res.status} ${res.statusText}`;
+    throw new Error(msg || "Invalid email or password");
   }
-  if (error || !data?.session || !data.user) {
-    throw new Error(error?.message || "Invalid email or password");
-  }
-  const token = data.session.access_token;
-  setToken(token);
-  const uid = data.user.id;
-  const { data: profile, error: pErr } = await supabase
-    .from("user_profiles")
-    .select("user_id,name,email,role,active")
-    .eq("user_id", uid)
-    .single();
-  if (pErr || !profile) throw new Error(pErr?.message || "Profile not found");
-  const user: User = {
-    id: profile.user_id,
-    username: profile.name,
-    name: profile.name,
-    email: profile.email,
-    role: profile.role as any,
-    active: Boolean(profile.active),
-  };
-  return { token, user } as AuthLoginResponse;
+  const data = (await res.json()) as AuthLoginResponse;
+  setToken(data.token);
+  return data;
 }
 
 export async function me(): Promise<User | null> {
@@ -83,14 +67,12 @@ export async function me(): Promise<User | null> {
 export async function logout() {
   const token = getToken();
   try {
-    const { supabase } = await import("@/lib/supabase");
-    await supabase.auth.signOut();
-  } catch {}
-  try {
     if (token) {
       await fetch(
         apiUrl(`/api/auth/logout?token=${encodeURIComponent(token)}`),
-        { method: "POST" },
+        {
+          method: "POST",
+        },
       );
     }
   } catch {}

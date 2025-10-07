@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import crypto from "node:crypto";
 import mysql, { type RowDataPacket } from "mysql2/promise";
 import bcrypt from "bcryptjs";
 

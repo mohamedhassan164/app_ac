@@ -15,6 +15,20 @@ import {
   adminListUsers,
   adminUpdateUser,
 } from "./routes/admin-users";
+import {
+  accountingSnapshotHandler,
+  approveTransactionHandler,
+  createInventoryItemHandler,
+  createProjectCostHandler,
+  createProjectHandler,
+  createProjectSaleHandler,
+  createTransactionHandler,
+  deleteInventoryItemHandler,
+  deleteTransactionHandler,
+  getProjectHandler,
+  recordInventoryIssueHandler,
+  recordInventoryReceiptHandler,
+} from "./routes/accounting";
 import { initializeMysql } from "./lib/mysql";
 
 export function createServer() {
@@ -48,11 +62,28 @@ export function createServer() {
   app.put("/api/users/:id", updateUserHandler);
   app.delete("/api/users/:id", deleteUserHandler);
 
-  // Users (Supabase admin)
+  // Users (admin)
   app.get("/api/admin/users", adminListUsers);
   app.post("/api/admin/users", adminCreateUser);
   app.put("/api/admin/users/:id", adminUpdateUser);
   app.delete("/api/admin/users/:id", adminDeleteUser);
+
+  // Accounting
+  app.get("/api/accounting/snapshot", accountingSnapshotHandler);
+  app.post("/api/accounting/transactions", createTransactionHandler);
+  app.post(
+    "/api/accounting/transactions/:id/approve",
+    approveTransactionHandler,
+  );
+  app.delete("/api/accounting/transactions/:id", deleteTransactionHandler);
+  app.post("/api/accounting/inventory/items", createInventoryItemHandler);
+  app.delete("/api/accounting/inventory/items/:id", deleteInventoryItemHandler);
+  app.post("/api/accounting/inventory/receipt", recordInventoryReceiptHandler);
+  app.post("/api/accounting/inventory/issue", recordInventoryIssueHandler);
+  app.post("/api/accounting/projects", createProjectHandler);
+  app.get("/api/accounting/projects/:id", getProjectHandler);
+  app.post("/api/accounting/projects/:id/costs", createProjectCostHandler);
+  app.post("/api/accounting/projects/:id/sales", createProjectSaleHandler);
 
   return app;
 }

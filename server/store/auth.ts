@@ -1,10 +1,8 @@
 import crypto from "node:crypto";
-import crypto from "node:crypto";
 import type { Role, User, UserWithPassword } from "@shared/api";
 import bcrypt from "bcryptjs";
 import type { RowDataPacket } from "mysql2/promise";
 import { getInitializedMysqlPool, isMysqlConfigured } from "../lib/mysql";
-import { supabaseAdmin } from "../lib/supabase";
 
 // In-memory stores (non-persistent) - fallback when external persistence is missing
 const fallbackUsers = new Map<string, UserWithPassword>();
@@ -103,26 +101,6 @@ export async function getUserByTokenAsync(
   token?: string | null,
 ): Promise<User | null> {
   if (!token) return null;
-  if (supabaseAdmin) {
-    const { data, error } = await supabaseAdmin.auth.getUser(token);
-    if (error || !data?.user) return null;
-    const authUser = data.user;
-    const { data: profile } = await supabaseAdmin
-      .from("user_profiles")
-      .select("user_id,name,email,role,active")
-      .eq("user_id", authUser.id)
-      .single();
-    if (!profile) return null;
-    const user: User = {
-      id: profile.user_id,
-      username: profile.name,
-      name: profile.name,
-      email: profile.email,
-      role: profile.role as Role,
-      active: Boolean(profile.active),
-    };
-    return user;
-  }
 
   const pool = await getInitializedMysqlPool();
   if (pool) {
@@ -156,7 +134,7 @@ export async function getUserByTokenAsync(
 }
 
 export function getUserByToken(token?: string | null): User | null {
-  if (supabaseAdmin || isMysqlConfigured()) return null;
+  if (isMysqlConfigured()) return null;
   if (!token) return null;
   const userId = fallbackSessions.get(token);
   if (!userId) return null;
@@ -167,7 +145,6 @@ export function getUserByToken(token?: string | null): User | null {
 }
 
 export async function invalidateTokenAsync(token: string) {
-  if (supabaseAdmin) return;
   if (!token) return;
   const pool = await getInitializedMysqlPool();
   if (pool) {
